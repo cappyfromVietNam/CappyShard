@@ -23,8 +23,8 @@ afk-settings:
   enabled-worlds:
     - "afk_world"
     - "spawn"
-  actionbar-message: "<yellow>Nhận Shard sau: <white>%time%s</white></yellow>"
-  actionbar-reward-message: "<green>Bạn vừa nhận được %amount% Shard từ AFK!</green>"
+  actionbar-message: "<yellow>Receiving Shards in: <white>%time%s</white></yellow>"
+  actionbar-reward-message: "<green>You received %amount% Shards for being AFK!</green>"
 
 # Ranks are checked from top to bottom. The first one the player has permission for (cappyshards.rank.<name>) will be applied.
 ranks:

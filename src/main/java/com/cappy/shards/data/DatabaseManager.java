@@ -45,7 +45,7 @@ public class DatabaseManager {
              Statement stmt = conn.createStatement()) {
             stmt.execute(query);
         } catch (SQLException e) {
-            plugin.getLogger().severe("Lỗi tạo bảng database: " + e.getMessage());
+            plugin.getLogger().severe("Error creating database table: " + e.getMessage());
         }
     }
 
@@ -66,7 +66,7 @@ public class DatabaseManager {
                     return rs.getLong("shards");
                 }
             } catch (SQLException e) {
-                plugin.getLogger().severe("Lỗi getShards: " + e.getMessage());
+                plugin.getLogger().severe("Error in getShards: " + e.getMessage());
             }
             return 0L;
         });
@@ -83,7 +83,7 @@ public class DatabaseManager {
                 stmt.setLong(3, amount);
                 stmt.executeUpdate();
             } catch (SQLException e) {
-                plugin.getLogger().severe("Lỗi saveShards: " + e.getMessage());
+                plugin.getLogger().severe("Error in saveShards: " + e.getMessage());
             }
         });
     }
