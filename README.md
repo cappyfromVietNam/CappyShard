@@ -2,6 +2,12 @@
 
 <div align="center">
   <b>Advanced Shard Economy & AFK Rewards Plugin for PaperMC 1.21+</b>
+  <br><br>
+  
+  [![Paper](https://img.shields.io/badge/Paper-1.21+-333333?style=flat-square&logo=papermc)](https://papermc.io/)
+  [![Java](https://img.shields.io/badge/Java-21-007396?style=flat-square&logo=java)](https://adoptium.net/)
+  [![SQLite](https://img.shields.io/badge/SQLite-Async-003B57?style=flat-square&logo=sqlite)](https://www.sqlite.org/)
+  [![GitHub Releases](https://img.shields.io/github/v/release/quocdat251107-del/CappyShard?style=flat-square&logo=github&color=blue)](https://github.com/quocdat251107-del/CappyShard/releases)
 </div>
 
 <br>
@@ -66,4 +72,6 @@ To compile the project yourself:
 4. The compiled `.jar` file will be located in `build/libs/`.
 
 ---
-*Built with ❤️ for the PaperMC community.*
+<div align="center">
+  <i>Built with ❤️ by <b>Cappy Community</b> for the PaperMC community.</i>
+</div>

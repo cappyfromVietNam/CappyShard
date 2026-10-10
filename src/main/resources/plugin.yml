@@ -2,7 +2,7 @@ name: CappyShards
 version: '${version}'
 main: com.cappy.shards.CappyShards
 api-version: '1.21'
-author: quocdat
+author: Cappy Community
 description: Advanced Shards System for Paper Minecraft Servers
 
 commands:
