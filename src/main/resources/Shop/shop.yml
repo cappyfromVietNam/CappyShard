@@ -1,0 +1,29 @@
+title: "Cửa hàng Shard"
+size: 27
+
+items:
+  diamond_sword:
+    slot: 10
+    material: DIAMOND_SWORD
+    name: "<aqua>Kiếm Kim Cương Thần Thánh</aqua>"
+    lore:
+      - "<gray>Giá: <gold>100 Shards</gold></gray>"
+      - ""
+      - "<yellow>Click để mua!</yellow>"
+    price: 100
+    give-material: DIAMOND_SWORD
+    give-amount: 1
+    give-name: "<aqua>Kiếm Kim Cương Thần Thánh</aqua>"
+
+  golden_apple:
+    slot: 13
+    material: GOLDEN_APPLE
+    name: "<gold>Táo Vàng</gold>"
+    lore:
+      - "<gray>Giá: <gold>50 Shards</gold></gray>"
+      - ""
+      - "<yellow>Click để mua!</yellow>"
+    price: 50
+    give-material: GOLDEN_APPLE
+    give-amount: 5
+

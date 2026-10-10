@@ -1,0 +1,39 @@
+# ===================================================
+#               CappyShards Configuration
+# ===================================================
+
+storage:
+  type: SQLITE # Currently strictly using SQLite as requested
+
+anti-alt:
+  enabled: true
+  max-accounts-per-ip: 3
+
+anti-vpn:
+  enabled: true
+  # Check IP using proxycheck.io or similar. Replace %ip% with player ip
+  api-url: "http://proxycheck.io/v2/%ip%?vpn=1&asn=1"
+  # JSON key to check for VPN status (e.g. "proxy": "yes")
+  check-key: "proxy"
+  check-value: "yes"
+
+afk-settings:
+  enabled: true
+  interval-seconds: 60
+  enabled-worlds:
+    - "afk_world"
+    - "spawn"
+  actionbar-message: "<yellow>Nhận Shard sau: <white>%time%s</white></yellow>"
+  actionbar-reward-message: "<green>Bạn vừa nhận được %amount% Shard từ AFK!</green>"
+
+# Ranks are checked from top to bottom. The first one the player has permission for (cappyshards.rank.<name>) will be applied.
+ranks:
+  vip_plus:
+    permission: "cappyshards.rank.vipplus"
+    amount: 50
+  vip:
+    permission: "cappyshards.rank.vip"
+    amount: 30
+  default:
+    permission: "cappyshards.rank.default"
+    amount: 10

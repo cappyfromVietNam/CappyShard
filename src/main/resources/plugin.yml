@@ -1,0 +1,32 @@
+name: CappyShards
+version: '${version}'
+main: com.cappy.shards.CappyShards
+api-version: '1.21'
+author: quocdat
+description: Advanced Shards System for Paper Minecraft Servers
+
+commands:
+  cappyshard:
+    description: Main command for CappyShards
+    aliases: [shard, shards, cshard]
+    permission: cappyshards.use
+  shardshop:
+    description: Open the shard shop
+    permission: cappyshards.use.shop
+
+permissions:
+  cappyshards.use:
+    description: Allows basic use of commands
+    default: true
+  cappyshards.admin:
+    description: Admin commands for CappyShards
+    default: op
+  cappyshards.use.pay:
+    description: Allows paying shards
+    default: true
+  cappyshards.use.shop:
+    description: Allows opening shop
+    default: true
+  cappyshards.bypass.zone:
+    description: Bypass AFK zone requirement
+    default: op
