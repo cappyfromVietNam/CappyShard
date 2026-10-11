@@ -4,7 +4,6 @@ import com.cappy.shards.CappyShards;
 import com.cappy.shards.gui.ShopGUI;
 import com.cappy.shards.utils.ChatUtils;
 import net.kyori.adventure.text.format.TextDecoration;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -195,49 +194,38 @@ public class InventoryListener implements Listener {
                     return;
                 }
 
-                // 2. Inventory space check (only for standard item delivery)
-                boolean hasCommands = item.getCommands() != null && !item.getCommands().isEmpty();
-                if (!hasCommands) {
-                    int neededSlots = (int) Math.ceil((double) totalGiveAmount / maxStack);
-                    int emptySlots = 0;
-                    for (ItemStack content : player.getInventory().getStorageContents()) {
-                        if (content == null || content.getType().isAir()) {
-                            emptySlots++;
-                        }
-                    }
+                // 2. Inventory space check
+                int neededSlots = (int) Math.ceil((double) totalGiveAmount / maxStack);
 
-                    if (emptySlots < neededSlots) {
-                        ChatUtils.sendMessage(player, plugin.getMessage("inventory-full", "<red>Your inventory is full, cannot purchase this item!</red>"));
-                        return;
+                int emptySlots = 0;
+                for (ItemStack content : player.getInventory().getStorageContents()) {
+                    if (content == null || content.getType().isAir()) {
+                        emptySlots++;
                     }
+                }
+
+                if (emptySlots < neededSlots) {
+                    ChatUtils.sendMessage(player, plugin.getMessage("inventory-full", "<red>Your inventory is full, cannot purchase this item!</red>"));
+                    return;
                 }
 
                 // 3. Deduct shards
                 plugin.getPlayerDataManager().removeShards(player.getUniqueId(), totalCost);
 
-                // 4. Give items securely or dispatch console commands
-                if (hasCommands) {
-                    for (String cmd : item.getCommands()) {
-                        String formattedCmd = cmd
-                                .replace("%player%", player.getName())
-                                .replace("%amount%", String.valueOf(totalGiveAmount));
-                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), formattedCmd);
-                    }
-                } else {
-                    int remaining = totalGiveAmount;
-                    while (remaining > 0) {
-                        int giveThis = Math.min(remaining, maxStack);
-                        ItemStack reward = new ItemStack(mat, giveThis);
-                        if (item.getName() != null && !item.getName().isEmpty()) {
-                            ItemMeta meta = reward.getItemMeta();
-                            if (meta != null) {
-                                meta.displayName(ChatUtils.parse(item.getName()).decoration(TextDecoration.ITALIC, false));
-                                reward.setItemMeta(meta);
-                            }
+                // 4. Give items securely
+                int remaining = totalGiveAmount;
+                while (remaining > 0) {
+                    int giveThis = Math.min(remaining, maxStack);
+                    ItemStack reward = new ItemStack(mat, giveThis);
+                    if (item.getName() != null && !item.getName().isEmpty()) {
+                        ItemMeta meta = reward.getItemMeta();
+                        if (meta != null) {
+                            meta.displayName(ChatUtils.parse(item.getName()).decoration(TextDecoration.ITALIC, false));
+                            reward.setItemMeta(meta);
                         }
-                        player.getInventory().addItem(reward);
-                        remaining -= giveThis;
                     }
+                    player.getInventory().addItem(reward);
+                    remaining -= giveThis;
                 }
 
                 // 5. Send success message
