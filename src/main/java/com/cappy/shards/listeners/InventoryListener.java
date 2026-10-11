@@ -158,7 +158,9 @@ public class InventoryListener implements Listener {
                 }
             }
             case 31 -> { // CHEST / HOPPER: Switch between Stack Mode and Unit Mode!
-                plugin.getShopGUI().openConfirm(player, holder.getCategoryId(), holder.getShopItem(), 1, !stackMode);
+                if (holder.getShopItem().getMaterial().getMaxStackSize() > 1) {
+                    plugin.getShopGUI().openConfirm(player, holder.getCategoryId(), holder.getShopItem(), 1, !stackMode);
+                }
             }
             case 44 -> { // ARROW: Back to category
                 plugin.getShopGUI().openCategory(player, holder.getCategoryId());

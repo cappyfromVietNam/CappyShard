@@ -166,6 +166,9 @@ public class ShopGUI {
     }
 
     public void openConfirm(Player player, String categoryId, ShopItem shopItem, int quantity, boolean stackMode) {
+        if (shopItem.getMaterial().getMaxStackSize() <= 1) {
+            stackMode = false;
+        }
         int maxQty = stackMode ? 36 : 64;
         quantity = Math.max(1, Math.min(quantity, maxQty));
 
@@ -183,8 +186,12 @@ public class ShopGUI {
      */
     public void renderConfirmInventory(Inventory inv, Player player, ConfirmHolder holder) {
         ShopItem shopItem = holder.getShopItem();
-        boolean stackMode = holder.isStackMode();
         int itemMaxStack = Math.max(1, shopItem.getMaterial().getMaxStackSize());
+        boolean stackMode = holder.isStackMode();
+        if (itemMaxStack <= 1) {
+            stackMode = false;
+            holder.setStackMode(false);
+        }
         int maxQty = stackMode ? 36 : 64;
         int quantity = Math.max(1, Math.min(holder.getQuantity(), maxQty));
         holder.setQuantity(quantity);
@@ -278,14 +285,19 @@ public class ShopGUI {
         }
 
         // --- Slot 31: Chest / Hopper (Toggle between Stack Mode & Unit Mode) ---
-        if (stackMode) {
-            ItemStack switchUnit = createItem(Material.HOPPER, "<yellow><bold>Chuyển sang: Mua theo cái lẻ</bold></yellow>",
-                    List.of("<gray>Click để chuyển sang chế độ mua số lượng lẻ (1-64 cái).</gray>"));
-            inv.setItem(31, switchUnit);
+        // Không hiện ô mua theo stack nếu vật phẩm không thể xếp chồng (maxStackSize <= 1)
+        if (itemMaxStack > 1) {
+            if (stackMode) {
+                ItemStack switchUnit = createItem(Material.HOPPER, "<yellow><bold>Chuyển sang: Mua theo cái lẻ</bold></yellow>",
+                        List.of("<gray>Click để chuyển sang chế độ mua số lượng lẻ (1-64 cái).</gray>"));
+                inv.setItem(31, switchUnit);
+            } else {
+                ItemStack switchStack = createItem(Material.CHEST, "<gold><bold>Chuyển sang: Mua theo Stack</bold></gold>",
+                        List.of("<gray>Click để mở giao diện mua theo đơn vị Stack (1-36 Stacks).</gray>"));
+                inv.setItem(31, switchStack);
+            }
         } else {
-            ItemStack switchStack = createItem(Material.CHEST, "<gold><bold>Chuyển sang: Mua theo Stack</bold></gold>",
-                    List.of("<gray>Click để mở giao diện mua theo đơn vị Stack (1-36 Stacks).</gray>"));
-            inv.setItem(31, switchStack);
+            inv.setItem(31, grayGlass);
         }
 
         // --- Slot 36: Player Head (Profile / Balance) ---
