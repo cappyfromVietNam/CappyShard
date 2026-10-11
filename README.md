@@ -12,6 +12,7 @@
 [![Java](https://img.shields.io/badge/Java-21-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://adoptium.net/)
 [![SQLite](https://img.shields.io/badge/SQLite-HikariCP_Async-003B57?style=for-the-badge&logo=sqlite&logoColor=white)](https://www.sqlite.org/)
 [![PlaceholderAPI](https://img.shields.io/badge/PlaceholderAPI-Supported-4CAF50?style=for-the-badge)](https://wiki.placeholderapi.com/)
+[![bStats](https://img.shields.io/badge/bStats-34192-008CBA?style=for-the-badge)](https://bstats.org/plugin/bukkit/CappyShards/34192)
 [![Modrinth](https://img.shields.io/badge/Modrinth-Available-00AF5C?style=for-the-badge&logo=modrinth&logoColor=white)](https://modrinth.com/)
 
 [**Features**](#-features) • [**Quick Start**](#-quick-start) • [**In-Game Shop**](#-5-smart-in-game-shop) • [**Shard Multiplier**](#-shard-multiplier-boosters) • [**Placeholders**](#-placeholderapi-integration) • [**Commands & Permissions**](#-commands--permissions) • [**Configuration**](#-configuration-files)

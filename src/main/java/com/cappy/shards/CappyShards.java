@@ -83,6 +83,10 @@ public final class CappyShards extends JavaPlugin {
             logger.info("Hooked into PlaceholderAPI successfully!");
         }
 
+        // bStats Metrics
+        int bStatsPluginId = 34192;
+        new org.bstats.bukkit.Metrics(this, bStatsPluginId);
+
         logger.info("CappyShards has been enabled successfully!");
     }
 

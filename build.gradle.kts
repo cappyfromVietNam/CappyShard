@@ -1,6 +1,6 @@
 plugins {
     java
-    id("com.gradleup.shadow") version "8.3.6"
+    id("com.gradleup.shadow") version "8.3.7"
 }
 
 group = "com.cappy.shards"
@@ -28,6 +28,9 @@ dependencies {
     implementation("com.zaxxer:HikariCP:5.1.0")
     compileOnly("org.xerial:sqlite-jdbc:3.46.1.0")
     implementation("org.slf4j:slf4j-nop:1.7.36")
+
+    // bStats Metrics
+    implementation("org.bstats:bstats-bukkit:3.1.0")
 }
 
 java {
@@ -55,6 +58,7 @@ tasks.processResources {
 tasks.shadowJar {
     archiveClassifier.set("")
     archiveFileName.set("CappyShards-${project.version}.jar")
+    relocate("org.bstats", "com.cappy.shards.bstats")
 }
 
 tasks.build {
