@@ -104,3 +104,20 @@ categories:
           - "<yellow>» Click to choose quantity & buy!</yellow>"
         price: 200
         give-material: TOTEM_OF_UNDYING
+
+      # Example: Crate Key from another plugin (CrazyCrates, ExcellentCrates, GoldenCrates, etc.)
+      mythic_crate_key:
+        slot: 22
+        material: TRIPWIRE_HOOK
+        name: "<gradient:#FF0055:#FFAA00><bold>Mythic Crate Key</bold></gradient>"
+        lore:
+          - "<gray>Used to unlock the Mythic Crate at Spawn!</gray>"
+          - "<gray>Unit Price: <gold>150 Shards</gold></gray>"
+          - ""
+          - "<yellow>» Click to choose quantity & buy!</yellow>"
+        price: 150
+        # Commands executed by Console when player purchases.
+        # Placeholders: %player% = player name, %amount% = total quantity purchased.
+        commands:
+          - "cc give physical mythic %player% %amount%"
+          # - "crate key give %player% mythic %amount%" # (If using ExcellentCrates)

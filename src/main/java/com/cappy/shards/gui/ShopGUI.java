@@ -88,9 +88,10 @@ public class ShopGUI {
                                     Material giveMat = Material.matchMaterial(itemSec.getString("give-material", "STONE"));
                                     int giveAmt = itemSec.getInt("give-amount", 1);
                                     String giveName = itemSec.getString("give-name", "");
+                                    List<String> commands = itemSec.getStringList("commands");
 
                                     ShopItem item = new ShopItem(itemKey, slot, mat != null ? mat : Material.STONE,
-                                            name, lore, price, giveMat != null ? giveMat : (mat != null ? mat : Material.STONE), giveAmt, giveName);
+                                            name, lore, price, giveMat != null ? giveMat : (mat != null ? mat : Material.STONE), giveAmt, giveName, commands);
                                     items.put(slot, item);
                                 }
                             }
@@ -444,9 +445,10 @@ public class ShopGUI {
         public final Material giveMaterial;
         public final int giveAmount;
         public final String giveName;
+        public final List<String> commands;
 
         public ShopItem(String id, int slot, Material material, String name, List<String> lore,
-                        long price, Material giveMaterial, int giveAmount, String giveName) {
+                        long price, Material giveMaterial, int giveAmount, String giveName, List<String> commands) {
             this.id = id;
             this.slot = slot;
             this.material = material;
@@ -456,11 +458,13 @@ public class ShopGUI {
             this.giveMaterial = giveMaterial;
             this.giveAmount = giveAmount;
             this.giveName = giveName;
+            this.commands = commands != null ? commands : Collections.emptyList();
         }
 
         public long getPrice() { return price; }
         public Material getMaterial() { return giveMaterial != null ? giveMaterial : material; }
         public int getAmount() { return giveAmount; }
         public String getName() { return (giveName != null && !giveName.isEmpty()) ? giveName : name; }
+        public List<String> getCommands() { return commands; }
     }
 }
