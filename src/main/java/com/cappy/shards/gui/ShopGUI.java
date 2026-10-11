@@ -182,7 +182,7 @@ public class ShopGUI {
         quantity = Math.max(1, Math.min(quantity, maxQty));
 
         ConfirmHolder holder = new ConfirmHolder(categoryId, shopItem, quantity, stackMode);
-        String title = stackMode ? "<dark_gray>Mua theo Stack</dark_gray>" : "<dark_gray>Chọn số lượng để mua</dark_gray>";
+        String title = stackMode ? "<dark_gray>Buy by Stack</dark_gray>" : "<dark_gray>Choose Quantity to Buy</dark_gray>";
         Inventory inv = Bukkit.createInventory(holder, 45, ChatUtils.parse(title));
         holder.setInventory(inv);
 
@@ -219,55 +219,55 @@ public class ShopGUI {
         // --- Slot 13: Paper (Confirm Button) ---
         List<String> paperLore = new ArrayList<>();
         paperLore.add("<dark_gray>------------------------</dark_gray>");
-        paperLore.add("<gray>Vật phẩm: <white>" + (shopItem.getName().isEmpty() ? shopItem.getMaterial().name() : shopItem.getName()) + "</white></gray>");
+        paperLore.add("<gray>Item: <white>" + (shopItem.getName().isEmpty() ? shopItem.getMaterial().name() : shopItem.getName()) + "</white></gray>");
         if (stackMode) {
-            paperLore.add("<gray>Số lượng: <white>" + quantity + " Stack(s) (" + totalItems + " cái)</white></gray>");
+            paperLore.add("<gray>Quantity: <white>" + quantity + " Stack(s) (" + totalItems + " items)</white></gray>");
         } else {
-            paperLore.add("<gray>Số lượng: <white>" + quantity + " cái</white></gray>");
+            paperLore.add("<gray>Quantity: <white>" + quantity + " items</white></gray>");
         }
-        paperLore.add("<gray>Tổng giá: <gold>" + totalCost + " Shards</gold></gray>");
+        paperLore.add("<gray>Total Cost: <gold>" + totalCost + " Shards</gold></gray>");
         paperLore.add("<dark_gray>------------------------</dark_gray>");
         if (playerBalance >= totalCost) {
-            paperLore.add("<yellow>\u00BB Click để xác nhận mua!</yellow>");
+            paperLore.add("<yellow>\u00BB Click to confirm purchase!</yellow>");
         } else {
-            paperLore.add("<red>\u2716 Không đủ Shard để mua!</red>");
+            paperLore.add("<red>\u2716 Not enough Shards to purchase!</red>");
         }
-        ItemStack paper = createItem(Material.PAPER, "<green><bold>Xác nhận mua" + (stackMode ? " (Stack)" : "") + "</bold></green>", paperLore);
+        ItemStack paper = createItem(Material.PAPER, "<green><bold>Confirm Purchase" + (stackMode ? " (Stack)" : "") + "</bold></green>", paperLore);
         inv.setItem(13, paper);
 
         // --- Slot 22: Center Display Item ---
         List<String> displayLore = new ArrayList<>();
         displayLore.add("<dark_gray>------------------------</dark_gray>");
-        displayLore.add("<gray>Đơn giá: <gold>" + shopItem.getPrice() + " Shards/cái</gold></gray>");
+        displayLore.add("<gray>Unit Price: <gold>" + shopItem.getPrice() + " Shards/item</gold></gray>");
         if (stackMode) {
             long stackCost = (long) itemMaxStack * shopItem.getPrice();
-            displayLore.add("<gray>Đơn giá 1 Stack: <gold>" + stackCost + " Shards</gold></gray>");
-            displayLore.add("<gray>Số stack chọn: <white>" + quantity + " Stack(s) (" + totalItems + " cái)</white></gray>");
+            displayLore.add("<gray>1 Stack Price: <gold>" + stackCost + " Shards</gold></gray>");
+            displayLore.add("<gray>Selected: <white>" + quantity + " Stack(s) (" + totalItems + " items)</white></gray>");
         } else {
-            displayLore.add("<gray>Số lượng chọn: <white>" + quantity + " cái</white></gray>");
+            displayLore.add("<gray>Selected Quantity: <white>" + quantity + " items</white></gray>");
         }
-        displayLore.add("<gray>Tổng thanh toán: <gold>" + totalCost + " Shards</gold></gray>");
+        displayLore.add("<gray>Total Cost: <gold>" + totalCost + " Shards</gold></gray>");
         displayLore.add("<dark_gray>------------------------</dark_gray>");
         if (playerBalance >= totalCost) {
-            displayLore.add("<green>Số dư của bạn: <gold>" + playerBalance + " Shards</gold></green>");
+            displayLore.add("<green>Your Balance: <gold>" + playerBalance + " Shards</gold></green>");
         } else {
-            displayLore.add("<red>Số dư của bạn: <gold>" + playerBalance + " Shards</gold> (Thiếu!)</red>");
+            displayLore.add("<red>Your Balance: <gold>" + playerBalance + " Shards</gold> (Insufficient!)</red>");
         }
         ItemStack centerItem = createItem(shopItem.material, shopItem.name.isEmpty() ? null : shopItem.name, displayLore);
         centerItem.setAmount(Math.max(1, Math.min(quantity, 64)));
         inv.setItem(22, centerItem);
 
         // --- Decrease Buttons: Slots 19, 20, 21 ---
-        // "tăng lên mới hiện bên giảm" -> Only visible if quantity > 1
+        // Only visible if quantity > 1
         if (quantity > 1) {
             if (stackMode) {
-                inv.setItem(21, createGlassButton(Material.RED_STAINED_GLASS_PANE, 1, "<red><bold>-1 Stack</bold></red>", "<gray>Giảm 1 stack (" + itemMaxStack + " cái)</gray>"));
-                inv.setItem(20, createGlassButton(Material.RED_STAINED_GLASS_PANE, 8, "<red><bold>-8 Stacks</bold></red>", "<gray>Giảm 8 stacks</gray>"));
-                inv.setItem(19, createGlassButton(Material.RED_STAINED_GLASS_PANE, 16, "<red><bold>-16 Stacks</bold></red>", "<gray>Giảm 16 stacks</gray>"));
+                inv.setItem(21, createGlassButton(Material.RED_STAINED_GLASS_PANE, 1, "<red><bold>-1 Stack</bold></red>", "<gray>Decrease by 1 stack (" + itemMaxStack + " items)</gray>"));
+                inv.setItem(20, createGlassButton(Material.RED_STAINED_GLASS_PANE, 8, "<red><bold>-8 Stacks</bold></red>", "<gray>Decrease by 8 stacks</gray>"));
+                inv.setItem(19, createGlassButton(Material.RED_STAINED_GLASS_PANE, 16, "<red><bold>-16 Stacks</bold></red>", "<gray>Decrease by 16 stacks</gray>"));
             } else {
-                inv.setItem(21, createGlassButton(Material.RED_STAINED_GLASS_PANE, 1, "<red><bold>-1</bold></red>", "<gray>Giảm đi 1</gray>"));
-                inv.setItem(20, createGlassButton(Material.RED_STAINED_GLASS_PANE, 16, "<red><bold>-16</bold></red>", "<gray>Giảm đi 16</gray>"));
-                inv.setItem(19, createGlassButton(Material.RED_STAINED_GLASS_PANE, 32, "<red><bold>-32</bold></red>", "<gray>Giảm đi 32</gray>"));
+                inv.setItem(21, createGlassButton(Material.RED_STAINED_GLASS_PANE, 1, "<red><bold>-1</bold></red>", "<gray>Decrease by 1</gray>"));
+                inv.setItem(20, createGlassButton(Material.RED_STAINED_GLASS_PANE, 16, "<red><bold>-16</bold></red>", "<gray>Decrease by 16</gray>"));
+                inv.setItem(19, createGlassButton(Material.RED_STAINED_GLASS_PANE, 32, "<red><bold>-32</bold></red>", "<gray>Decrease by 32</gray>"));
             }
         } else {
             inv.setItem(19, grayGlass);
@@ -276,16 +276,16 @@ public class ShopGUI {
         }
 
         // --- Increase Buttons: Slots 23, 24, 25 ---
-        // "tăng max rồi hiện bên giảm th" -> Only visible if quantity < maxQty
+        // Only visible if quantity < maxQty
         if (quantity < maxQty) {
             if (stackMode) {
-                inv.setItem(23, createGlassButton(Material.LIGHT_BLUE_STAINED_GLASS_PANE, 1, "<aqua><bold>+1 Stack</bold></aqua>", "<gray>Tăng 1 stack (" + itemMaxStack + " cái)</gray>"));
-                inv.setItem(24, createGlassButton(Material.LIGHT_BLUE_STAINED_GLASS_PANE, 8, "<aqua><bold>+8 Stacks</bold></aqua>", "<gray>Tăng 8 stacks</gray>"));
-                inv.setItem(25, createGlassButton(Material.LIGHT_BLUE_STAINED_GLASS_PANE, 16, "<aqua><bold>+16 Stacks</bold></aqua>", "<gray>Tăng 16 stacks</gray>"));
+                inv.setItem(23, createGlassButton(Material.LIGHT_BLUE_STAINED_GLASS_PANE, 1, "<aqua><bold>+1 Stack</bold></aqua>", "<gray>Increase by 1 stack (" + itemMaxStack + " items)</gray>"));
+                inv.setItem(24, createGlassButton(Material.LIGHT_BLUE_STAINED_GLASS_PANE, 8, "<aqua><bold>+8 Stacks</bold></aqua>", "<gray>Increase by 8 stacks</gray>"));
+                inv.setItem(25, createGlassButton(Material.LIGHT_BLUE_STAINED_GLASS_PANE, 16, "<aqua><bold>+16 Stacks</bold></aqua>", "<gray>Increase by 16 stacks</gray>"));
             } else {
-                inv.setItem(23, createGlassButton(Material.LIGHT_BLUE_STAINED_GLASS_PANE, 1, "<aqua><bold>+1</bold></aqua>", "<gray>Tăng thêm 1</gray>"));
-                inv.setItem(24, createGlassButton(Material.LIGHT_BLUE_STAINED_GLASS_PANE, 16, "<aqua><bold>+16</bold></aqua>", "<gray>Tăng thêm 16</gray>"));
-                inv.setItem(25, createGlassButton(Material.LIGHT_BLUE_STAINED_GLASS_PANE, 32, "<aqua><bold>+32</bold></aqua>", "<gray>Tăng thêm 32</gray>"));
+                inv.setItem(23, createGlassButton(Material.LIGHT_BLUE_STAINED_GLASS_PANE, 1, "<aqua><bold>+1</bold></aqua>", "<gray>Increase by 1</gray>"));
+                inv.setItem(24, createGlassButton(Material.LIGHT_BLUE_STAINED_GLASS_PANE, 16, "<aqua><bold>+16</bold></aqua>", "<gray>Increase by 16</gray>"));
+                inv.setItem(25, createGlassButton(Material.LIGHT_BLUE_STAINED_GLASS_PANE, 32, "<aqua><bold>+32</bold></aqua>", "<gray>Increase by 32</gray>"));
             }
         } else {
             inv.setItem(23, grayGlass);
@@ -294,15 +294,15 @@ public class ShopGUI {
         }
 
         // --- Slot 31: Chest / Hopper (Toggle between Stack Mode & Unit Mode) ---
-        // Không hiện ô mua theo stack nếu vật phẩm không thể xếp chồng (maxStackSize <= 1)
+        // Hide stack option if item cannot stack (maxStackSize <= 1)
         if (itemMaxStack > 1) {
             if (stackMode) {
-                ItemStack switchUnit = createItem(Material.HOPPER, "<yellow><bold>Chuyển sang: Mua theo cái lẻ</bold></yellow>",
-                        List.of("<gray>Click để chuyển sang chế độ mua số lượng lẻ (1-64 cái).</gray>"));
+                ItemStack switchUnit = createItem(Material.HOPPER, "<yellow><bold>Switch to: Buy by Unit</bold></yellow>",
+                        List.of("<gray>Click to switch to single-item purchase mode (1-64 items).</gray>"));
                 inv.setItem(31, switchUnit);
             } else {
-                ItemStack switchStack = createItem(Material.CHEST, "<gold><bold>Chuyển sang: Mua theo Stack</bold></gold>",
-                        List.of("<gray>Click để mở giao diện mua theo đơn vị Stack (1-36 Stacks).</gray>"));
+                ItemStack switchStack = createItem(Material.CHEST, "<gold><bold>Switch to: Buy by Stack</bold></gold>",
+                        List.of("<gray>Click to open Stack purchase mode (1-36 Stacks).</gray>"));
                 inv.setItem(31, switchStack);
             }
         } else {
@@ -314,18 +314,18 @@ public class ShopGUI {
         SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
         if (skullMeta != null) {
             skullMeta.setOwningPlayer(player);
-            skullMeta.displayName(ChatUtils.parse("<yellow><bold>Tài khoản của bạn</bold></yellow>").decoration(TextDecoration.ITALIC, false));
+            skullMeta.displayName(ChatUtils.parse("<yellow><bold>Your Account</bold></yellow>").decoration(TextDecoration.ITALIC, false));
             skullMeta.lore(List.of(
-                    ChatUtils.parse("<gray>Người chơi: <white>" + player.getName() + "</white></gray>").decoration(TextDecoration.ITALIC, false),
-                    ChatUtils.parse("<gray>Số dư Shard: <gold>" + playerBalance + " Shards</gold></gray>").decoration(TextDecoration.ITALIC, false)
+                    ChatUtils.parse("<gray>Player: <white>" + player.getName() + "</white></gray>").decoration(TextDecoration.ITALIC, false),
+                    ChatUtils.parse("<gray>Shard Balance: <gold>" + playerBalance + " Shards</gold></gray>").decoration(TextDecoration.ITALIC, false)
             ));
             skull.setItemMeta(skullMeta);
         }
         inv.setItem(36, skull);
 
         // --- Slot 44: Arrow (Back Button) ---
-        ItemStack backArrow = createItem(Material.ARROW, "<red><bold>\u00AB Quay lại</bold></red>",
-                List.of("<gray>Click để quay lại danh mục sản phẩm.</gray>"));
+        ItemStack backArrow = createItem(Material.ARROW, "<red><bold>\u00AB Back</bold></red>",
+                List.of("<gray>Click to return to the category menu.</gray>"));
         inv.setItem(44, backArrow);
     }
 

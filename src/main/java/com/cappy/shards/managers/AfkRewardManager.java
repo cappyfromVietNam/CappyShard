@@ -15,7 +15,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public class AfkRewardManager {
 
     private final CappyShards plugin;
-    private final ConcurrentHashMap<UUID, Integer> countdowns = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<UUID, Long> nextRewardTimes = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<UUID, Long> rewardDisplayUntil = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<UUID, String> activeRewardMessage = new ConcurrentHashMap<>();
     private BukkitTask task;
     private int defaultInterval;
     private List<String> enabledWorlds;
@@ -30,52 +32,53 @@ public class AfkRewardManager {
     public void loadConfig() {
         defaultInterval = plugin.getConfig().getInt("afk-settings.interval-seconds", 60);
         enabledWorlds = plugin.getConfig().getStringList("afk-settings.enabled-worlds");
-        actionbarMsg = plugin.getConfig().getString("afk-settings.actionbar-message", "<yellow>Nhận Shard sau: <white>%time%s</white></yellow>");
-        rewardMsg = plugin.getConfig().getString("afk-settings.actionbar-reward-message", "<green>Bạn vừa nhận được %amount% Shard từ AFK!</green>");
+        actionbarMsg = plugin.getConfig().getString("afk-settings.actionbar-message", "<yellow>Receiving Shards in: <white>%time%s</white></yellow>");
+        rewardMsg = plugin.getConfig().getString("afk-settings.actionbar-reward-message", "<green>You received %amount% Shards for being AFK!</green>");
     }
 
     public void start() {
         if (!plugin.getConfig().getBoolean("afk-settings.enabled", true)) return;
 
+        // Run every 10 ticks (0.5s) to guarantee Action Bar priority over other plugins in the AFK world
         task = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
-            for (Map.Entry<UUID, Integer> entry : countdowns.entrySet()) {
-                UUID uuid = entry.getKey();
-                Player player = Bukkit.getPlayer(uuid);
-                
-                if (player == null || !player.isOnline()) {
-                    countdowns.remove(uuid);
-                    continue;
-                }
+            long now = System.currentTimeMillis();
 
-                // Check world condition
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                UUID uuid = player.getUniqueId();
+
                 boolean bypass = player.hasPermission("cappyshards.bypass.zone");
                 boolean inWorld = enabledWorlds.contains(player.getWorld().getName());
 
                 if (!bypass && !inWorld) {
-                    countdowns.remove(uuid);
+                    nextRewardTimes.remove(uuid);
+                    rewardDisplayUntil.remove(uuid);
+                    activeRewardMessage.remove(uuid);
                     continue;
                 }
 
-                int current = entry.getValue() - 1;
-                
-                if (current <= 0) {
-                    // Reward player on Main Thread
+                long nextTime = nextRewardTimes.computeIfAbsent(uuid, k -> now + (long) defaultInterval * 1000L);
+
+                if (now >= nextTime) {
+                    // Reset interval timer
+                    nextRewardTimes.put(uuid, now + (long) defaultInterval * 1000L);
+                    // Reward on Main Thread
                     Bukkit.getScheduler().runTask(plugin, () -> rewardPlayer(player));
-                    countdowns.put(uuid, defaultInterval);
                 } else {
-                    countdowns.put(uuid, current);
-                    player.sendActionBar(ChatUtils.parse(actionbarMsg.replace("%time%", String.valueOf(current))));
+                    // If in reward banner display window (3 seconds), display reward banner
+                    Long showUntil = rewardDisplayUntil.get(uuid);
+                    if (showUntil != null && now < showUntil) {
+                        String activeMsg = activeRewardMessage.get(uuid);
+                        if (activeMsg != null) {
+                            player.sendActionBar(ChatUtils.parse(activeMsg));
+                        }
+                    } else {
+                        // Priority countdown action bar refresh
+                        long remainingSec = Math.max(1, (nextTime - now + 999L) / 1000L);
+                        player.sendActionBar(ChatUtils.parse(actionbarMsg.replace("%time%", String.valueOf(remainingSec))));
+                    }
                 }
             }
-            
-            // Periodically check if anyone needs to be added (if they entered the world)
-            for (Player p : Bukkit.getOnlinePlayers()) {
-                if (!countdowns.containsKey(p.getUniqueId())) {
-                    addPlayer(p);
-                }
-            }
-            
-        }, 20L, 20L); // 1 second interval
+        }, 10L, 10L); // 0.5s priority interval
     }
 
     private void rewardPlayer(Player player) {
@@ -94,7 +97,10 @@ public class AfkRewardManager {
 
         if (rewardAmount > 0) {
             plugin.getPlayerDataManager().addShards(player.getUniqueId(), rewardAmount);
-            player.sendActionBar(ChatUtils.parse(rewardMsg.replace("%amount%", String.valueOf(rewardAmount))));
+            String formattedReward = rewardMsg.replace("%amount%", String.valueOf(rewardAmount));
+            activeRewardMessage.put(player.getUniqueId(), formattedReward);
+            rewardDisplayUntil.put(player.getUniqueId(), System.currentTimeMillis() + 3000L);
+            player.sendActionBar(ChatUtils.parse(formattedReward));
         }
     }
 
@@ -103,20 +109,24 @@ public class AfkRewardManager {
             task.cancel();
             task = null;
         }
-        countdowns.clear();
+        nextRewardTimes.clear();
+        rewardDisplayUntil.clear();
+        activeRewardMessage.clear();
     }
 
     public void addPlayer(Player player) {
         boolean bypass = player.hasPermission("cappyshards.bypass.zone");
         boolean inWorld = enabledWorlds.contains(player.getWorld().getName());
-        
+
         if (bypass || inWorld) {
-            countdowns.putIfAbsent(player.getUniqueId(), defaultInterval);
+            nextRewardTimes.putIfAbsent(player.getUniqueId(), System.currentTimeMillis() + (long) defaultInterval * 1000L);
         }
     }
 
     public void removePlayer(UUID uuid) {
-        countdowns.remove(uuid);
+        nextRewardTimes.remove(uuid);
+        rewardDisplayUntil.remove(uuid);
+        activeRewardMessage.remove(uuid);
     }
 }
 

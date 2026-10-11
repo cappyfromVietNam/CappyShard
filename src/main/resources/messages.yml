@@ -16,9 +16,11 @@ shard-remove: "<green>Removed <gold>%amount%</gold> Shards from <white>%player%<
 shard-pay-success: "<green>You have sent <gold>%amount%</gold> Shards to <white>%player%</white>.</green>"
 shard-pay-receive: "<green>You have received <gold>%amount%</gold> Shards from <white>%player%</white>.</green>"
 not-enough-shards: "<red>You do not have enough Shards to perform this transaction!</red>"
+cannot-pay-self: "<red>You cannot send Shards to yourself!</red>"
 
 invalid-amount: "<red>Invalid amount!</red>"
 player-not-found: "<red>Player not found (or they have never joined)!</red>"
 inventory-full: "<red>Your inventory is full, cannot purchase this item!</red>"
 shop-purchase-success: "<green>Successfully purchased <white>%amount%x %item%</white> for <gold>%price%</gold> Shards.</green>"
 action-locked: "<red>You are clicking too fast! Please try again.</red>"
+invalid-command: "<red>Unknown command! Type /cappyshard for help.</red>"

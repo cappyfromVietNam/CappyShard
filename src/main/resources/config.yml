@@ -21,8 +21,7 @@ afk-settings:
   enabled: true
   interval-seconds: 60
   enabled-worlds:
-    - "afk_world"
-    - "spawn"
+    - "ShardAFK"
   actionbar-message: "<yellow>Receiving Shards in: <white>%time%s</white></yellow>"
   actionbar-reward-message: "<green>You received %amount% Shards for being AFK!</green>"
 
