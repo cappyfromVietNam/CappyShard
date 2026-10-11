@@ -108,40 +108,57 @@ public class InventoryListener implements Listener {
 
     private void handleConfirmClick(Player player, ShopGUI.ConfirmHolder holder, int slot, Inventory inv) {
         int currentQty = holder.getQuantity();
+        int maxQty = Math.min(holder.getShopItem().getMaterial().getMaxStackSize(), 64);
 
         switch (slot) {
-            case 18 -> { // Min (1)
-                holder.setQuantity(1);
-                plugin.getShopGUI().renderConfirmInventory(inv, player, holder);
-            }
-            case 10 -> { // -10
-                holder.setQuantity(Math.max(1, currentQty - 10));
-                plugin.getShopGUI().renderConfirmInventory(inv, player, holder);
-            }
-            case 11 -> { // -1
-                holder.setQuantity(Math.max(1, currentQty - 1));
-                plugin.getShopGUI().renderConfirmInventory(inv, player, holder);
-            }
-            case 15 -> { // +1
-                holder.setQuantity(Math.min(64, currentQty + 1));
-                plugin.getShopGUI().renderConfirmInventory(inv, player, holder);
-            }
-            case 16 -> { // +10
-                holder.setQuantity(Math.min(64, currentQty + 10));
-                plugin.getShopGUI().renderConfirmInventory(inv, player, holder);
-            }
-            case 26 -> { // Max (64)
-                holder.setQuantity(64);
-                plugin.getShopGUI().renderConfirmInventory(inv, player, holder);
-            }
-            case 21 -> { // Cancel / Back
-                plugin.getShopGUI().openCategory(player, holder.getCategoryId());
-            }
-            case 23 -> { // Confirm Purchase
+            case 13 -> { // PAPER: Confirm Purchase
                 executePurchase(player, holder);
             }
+            case 23 -> { // +1
+                if (currentQty < maxQty) {
+                    holder.setQuantity(Math.min(maxQty, currentQty + 1));
+                    plugin.getShopGUI().renderConfirmInventory(inv, player, holder);
+                }
+            }
+            case 24 -> { // +16
+                if (currentQty < maxQty) {
+                    holder.setQuantity(Math.min(maxQty, currentQty + 16));
+                    plugin.getShopGUI().renderConfirmInventory(inv, player, holder);
+                }
+            }
+            case 25 -> { // +32
+                if (currentQty < maxQty) {
+                    holder.setQuantity(Math.min(maxQty, currentQty + 32));
+                    plugin.getShopGUI().renderConfirmInventory(inv, player, holder);
+                }
+            }
+            case 21 -> { // -1
+                if (currentQty > 1) {
+                    holder.setQuantity(Math.max(1, currentQty - 1));
+                    plugin.getShopGUI().renderConfirmInventory(inv, player, holder);
+                }
+            }
+            case 20 -> { // -16
+                if (currentQty > 1) {
+                    holder.setQuantity(Math.max(1, currentQty - 16));
+                    plugin.getShopGUI().renderConfirmInventory(inv, player, holder);
+                }
+            }
+            case 19 -> { // -32
+                if (currentQty > 1) {
+                    holder.setQuantity(Math.max(1, currentQty - 32));
+                    plugin.getShopGUI().renderConfirmInventory(inv, player, holder);
+                }
+            }
+            case 31 -> { // CHEST: Buy by Stack
+                holder.setQuantity(maxQty);
+                plugin.getShopGUI().renderConfirmInventory(inv, player, holder);
+            }
+            case 44 -> { // ARROW: Back to category
+                plugin.getShopGUI().openCategory(player, holder.getCategoryId());
+            }
             default -> {
-                // Clicking display item (slot 13) or glass panes does nothing, stays strictly cancelled
+                // Clicking display item (slot 22), skull (slot 36), or glass panes does nothing
             }
         }
     }
