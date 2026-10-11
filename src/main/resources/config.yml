@@ -4,6 +4,7 @@
 
 storage:
   type: SQLITE # Currently strictly using SQLite as requested
+  file: "cappyshards.db"
 
 anti-alt:
   enabled: true

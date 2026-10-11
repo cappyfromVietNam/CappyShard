@@ -186,3 +186,4 @@ File jar hoàn chỉnh sau khi build sẽ nằm tại thư mục `build/libs/Cap
 Nếu bạn yêu thích plugin này, hãy dành tặng 1 ⭐ sao trên kho lưu trữ GitHub nhé!
 
 </div>
+

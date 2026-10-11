@@ -23,7 +23,27 @@ public class DatabaseManager {
     }
 
     public void init() {
-        File dbFile = new File(plugin.getDataFolder(), "database.db");
+        String fileName = plugin.getConfig().getString("storage.file", "cappyshards.db");
+        if (!fileName.endsWith(".db")) {
+            fileName += ".db";
+        }
+
+        File dbFile = new File(plugin.getDataFolder(), fileName);
+
+        // Auto-migration from legacy generic "database.db" to new name
+        File oldDb = new File(plugin.getDataFolder(), "database.db");
+        if (oldDb.exists() && !dbFile.exists()) {
+            plugin.getLogger().info("Migrating legacy database.db to " + fileName + "...");
+            oldDb.renameTo(dbFile);
+            File oldWal = new File(plugin.getDataFolder(), "database.db-wal");
+            if (oldWal.exists()) {
+                oldWal.renameTo(new File(plugin.getDataFolder(), fileName + "-wal"));
+            }
+            File oldShm = new File(plugin.getDataFolder(), "database.db-shm");
+            if (oldShm.exists()) {
+                oldShm.renameTo(new File(plugin.getDataFolder(), fileName + "-shm"));
+            }
+        }
 
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl("jdbc:sqlite:" + dbFile.getAbsolutePath());
