@@ -14,7 +14,7 @@
 [![PlaceholderAPI](https://img.shields.io/badge/PlaceholderAPI-Supported-4CAF50?style=for-the-badge)](https://wiki.placeholderapi.com/)
 [![Modrinth](https://img.shields.io/badge/Modrinth-Available-00AF5C?style=for-the-badge&logo=modrinth&logoColor=white)](https://modrinth.com/)
 
-[**Features**](#-features) • [**Quick Start**](#-quick-start) • [**GUI Showcase**](#-interactive-3-tier-shop-gui) • [**Shard Multiplier**](#-shard-multiplier-boosters) • [**Placeholders**](#-placeholderapi-integration) • [**Commands & Permissions**](#-commands--permissions) • [**Configuration**](#-configuration-files)
+[**Features**](#-features) • [**Quick Start**](#-quick-start) • [**In-Game Shop**](#-5-smart-in-game-shop) • [**Shard Multiplier**](#-shard-multiplier-boosters) • [**Placeholders**](#-placeholderapi-integration) • [**Commands & Permissions**](#-commands--permissions) • [**Configuration**](#-configuration-files)
 
 </div>
 
@@ -26,7 +26,7 @@
 
 Tired of clunky economy plugins that cause TPS lag, leak memory, or get exploited by inventory click hacks? 
 
-**CappyShards** is an advanced, production-ready server solution crafted from the ground up for modern Paper/Purpur 1.21+ Minecraft networks. It introduces a secondary premium economy (**Shards**), an AFK reward zone with an action bar display that cannot be overridden by other plugins, a full 3-tier interactive shop with instant unit & stack adjustments, functional consumable boosters, and bulletproof concurrency protection.
+**CappyShards** is an advanced, production-ready server solution crafted from the ground up for modern Paper/Purpur 1.21+ Minecraft networks. It introduces a secondary premium economy (**Shards**), an AFK reward zone with an action bar display that cannot be overridden by other plugins, an intuitive in-game shop with instant unit & stack adjustments, functional consumable boosters, and bulletproof concurrency protection.
 
 **Best of all? No client mods or resource packs required.** Everything runs seamlessly on vanilla Minecraft clients!
 
@@ -56,43 +56,14 @@ Tired of clunky economy plugins that cause TPS lag, leak memory, or get exploite
 - **Visual & Audio Feedback:** Plays level-up chimes and sparkles upon activation.
 - **Fully Customizable:** Configure textures, custom model data, names, lores, sounds, and particles in `item.yml`.
 
-### 🛒 5. Interactive 3-Tier Shop GUI
-An intuitive, modern shop experience without needing custom texture packs:
-- **Tier 1 — Catalogue Menu (27 slots):** Browse categorized departments (Weapons, Consumables, Materials, etc.).
-- **Tier 2 — Category Items Menu (27 slots):** View products, Shard prices, and item previews with quick back navigation.
-- **Tier 3 — Quantity & Stack Selector (45 slots):**
-  - **Unit Mode:** Fine-tune exact item counts (1 to 64) with `-32`, `-16`, `-1`, `+1`, `+16`, `+32` buttons.
-  - **Stack Mode:** Buy in bulk (1 to 36 Stacks) with `-16`, `-8`, `-1`, `+1`, `+8`, `+16` buttons.
-  - **Smart Stack Detection:** Non-stackable equipment (swords, armor, tools) automatically disables stack mode to prevent issues.
-  - **Virtual & Crate Key Support:** Supports optional console `commands` in `shop.yml` for giving items without Minecraft IDs.
-  - **Inventory Validation:** Blocks purchases if inventory space is insufficient (bypassed for virtual command items).
-
----
-
-## 🖥️ Interactive 3-Tier Shop GUI
-
-```
-[ Tier 1: Catalogue Menu ] (27 Slots)
-  ├── Weapons & Tools
-  ├── Consumables & Food
-  └── Valuable Materials
-         │
-         ▼  (Click Category)
-[ Tier 2: Category Items View ] (27 Slots)
-  ├── Item Slot #1 (100 Shards)
-  ├── Item Slot #2 (250 Shards)
-  └── [ « Back to Catalogue ]
-         │
-         ▼  (Click Item)
-[ Tier 3: Quantity & Confirm Menu ] (45 Slots)
-  ├── [ Slot 13 ]: Confirm Purchase Button (Summary & Total Cost)
-  ├── [ Slot 22 ]: Center Item Spotlight Showcase
-  ├── [ Left Side ]: Red Decrease Buttons (-32, -16, -1 / -16, -8, -1 Stacks)
-  ├── [ Right Side ]: Cyan Increase Buttons (+1, +16, +32 / +1, +8, +16 Stacks)
-  ├── [ Slot 31 ]: Toggle Mode (Hopper: Unit Mode ⇄ Chest: Stack Mode)
-  ├── [ Slot 36 ]: Player Profile & Live Shard Balance
-  └── [ Slot 44 ]: « Back to Category
-```
+### 🛒 5. Smart In-Game Shop
+An intuitive, player-friendly shopping experience without needing custom texture packs:
+- **Clean Category Browsing:** Organize items into custom departments (Weapons, Consumables, Materials, etc.) with customizable icons and color gradients.
+- **Unit & Bulk Stack Purchasing:** Players can easily switch between buying single items (1 to 64) or bulk stacks (1 to 36) with simple `+` and `-` buttons.
+- **Smart Stack Detection:** Non-stackable equipment (swords, armor, tools) automatically disables stack mode to prevent issues.
+- **Instant Purchase Preview:** Clear summary showing selected quantity, total cost, and current balance before confirming.
+- **Virtual Rewards & Commands:** Supports optional console `commands` in `shop.yml` for giving Crate Keys, ranks, or custom plugin items.
+- **Inventory Safe:** Automatically checks available inventory space before transactions to avoid dropped items.
 
 ---
 
