@@ -1,9 +1,8 @@
 package com.cappy.shards.items;
 
-import com.cappy.shards.CappyShards;
-import com.cappy.shards.utils.ChatUtils;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.TextDecoration;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
@@ -12,8 +11,11 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionType;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.cappy.shards.CappyShards;
+import com.cappy.shards.utils.ChatUtils;
+
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextDecoration;
 
 public class ShardMultiplierItem {
 
@@ -32,7 +34,7 @@ public class ShardMultiplierItem {
             lore.add(ChatUtils.parse("<gray>Boost: <gold>x" + (multiplier % 1 == 0 ? (long) multiplier : multiplier) + "</gold></gray>").decoration(TextDecoration.ITALIC, false));
             lore.add(ChatUtils.parse("<gray>Duration: <gold>" + durationMinutes + "m</gold></gray>").decoration(TextDecoration.ITALIC, false));
             lore.add(ChatUtils.parse("").decoration(TextDecoration.ITALIC, false));
-            lore.add(ChatUtils.parse("<yellow>» Drink to activate Shard boost!</yellow>").decoration(TextDecoration.ITALIC, false));
+            lore.add(ChatUtils.parse("<yellow>» Right-Click to instantly activate!</yellow>").decoration(TextDecoration.ITALIC, false));
             lore.add(ChatUtils.parse("<dark_gray>------------------------</dark_gray>").decoration(TextDecoration.ITALIC, false));
             meta.lore(lore);
 
@@ -68,3 +70,4 @@ public class ShardMultiplierItem {
         return val != null ? val : 30;
     }
 }
+
