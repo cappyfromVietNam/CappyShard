@@ -108,51 +108,57 @@ public class InventoryListener implements Listener {
 
     private void handleConfirmClick(Player player, ShopGUI.ConfirmHolder holder, int slot, Inventory inv) {
         int currentQty = holder.getQuantity();
-        int maxQty = 64;
+        boolean stackMode = holder.isStackMode();
+        int maxQty = stackMode ? 36 : 64;
 
         switch (slot) {
             case 13 -> { // PAPER: Confirm Purchase
                 executePurchase(player, holder);
             }
-            case 23 -> { // +1
+            case 23 -> { // +1 or +1 Stack
+                int delta = 1;
                 if (currentQty < maxQty) {
-                    holder.setQuantity(Math.min(maxQty, currentQty + 1));
+                    holder.setQuantity(Math.min(maxQty, currentQty + delta));
                     plugin.getShopGUI().renderConfirmInventory(inv, player, holder);
                 }
             }
-            case 24 -> { // +16
+            case 24 -> { // +16 or +8 Stacks
+                int delta = stackMode ? 8 : 16;
                 if (currentQty < maxQty) {
-                    holder.setQuantity(Math.min(maxQty, currentQty + 16));
+                    holder.setQuantity(Math.min(maxQty, currentQty + delta));
                     plugin.getShopGUI().renderConfirmInventory(inv, player, holder);
                 }
             }
-            case 25 -> { // +32
+            case 25 -> { // +32 or +16 Stacks
+                int delta = stackMode ? 16 : 32;
                 if (currentQty < maxQty) {
-                    holder.setQuantity(Math.min(maxQty, currentQty + 32));
+                    holder.setQuantity(Math.min(maxQty, currentQty + delta));
                     plugin.getShopGUI().renderConfirmInventory(inv, player, holder);
                 }
             }
-            case 21 -> { // -1
+            case 21 -> { // -1 or -1 Stack
+                int delta = 1;
                 if (currentQty > 1) {
-                    holder.setQuantity(Math.max(1, currentQty - 1));
+                    holder.setQuantity(Math.max(1, currentQty - delta));
                     plugin.getShopGUI().renderConfirmInventory(inv, player, holder);
                 }
             }
-            case 20 -> { // -16
+            case 20 -> { // -16 or -8 Stacks
+                int delta = stackMode ? 8 : 16;
                 if (currentQty > 1) {
-                    holder.setQuantity(Math.max(1, currentQty - 16));
+                    holder.setQuantity(Math.max(1, currentQty - delta));
                     plugin.getShopGUI().renderConfirmInventory(inv, player, holder);
                 }
             }
-            case 19 -> { // -32
+            case 19 -> { // -32 or -16 Stacks
+                int delta = stackMode ? 16 : 32;
                 if (currentQty > 1) {
-                    holder.setQuantity(Math.max(1, currentQty - 32));
+                    holder.setQuantity(Math.max(1, currentQty - delta));
                     plugin.getShopGUI().renderConfirmInventory(inv, player, holder);
                 }
             }
-            case 31 -> { // CHEST: Buy by Stack
-                holder.setQuantity(maxQty);
-                plugin.getShopGUI().renderConfirmInventory(inv, player, holder);
+            case 31 -> { // CHEST / HOPPER: Switch between Stack Mode and Unit Mode!
+                plugin.getShopGUI().openConfirm(player, holder.getCategoryId(), holder.getShopItem(), 1, !stackMode);
             }
             case 44 -> { // ARROW: Back to category
                 plugin.getShopGUI().openCategory(player, holder.getCategoryId());
@@ -172,8 +178,13 @@ public class InventoryListener implements Listener {
         if (plugin.getPlayerDataManager().lock(player.getUniqueId())) {
             try {
                 ShopGUI.ShopItem item = holder.getShopItem();
+                boolean stackMode = holder.isStackMode();
                 int qty = holder.getQuantity();
-                long totalCost = item.getPrice() * qty;
+                Material mat = item.getMaterial();
+                int maxStack = Math.max(1, mat.getMaxStackSize());
+
+                int totalGiveAmount = stackMode ? qty * maxStack : qty * Math.max(1, item.getAmount());
+                long totalCost = stackMode ? (long) qty * maxStack * item.getPrice() : (long) qty * item.getPrice();
 
                 // 1. Balance check
                 if (plugin.getPlayerDataManager().getShards(player.getUniqueId()) < totalCost) {
@@ -182,9 +193,6 @@ public class InventoryListener implements Listener {
                 }
 
                 // 2. Inventory space check
-                int totalGiveAmount = qty * Math.max(1, item.getAmount());
-                Material mat = item.getMaterial();
-                int maxStack = mat.getMaxStackSize();
                 int neededSlots = (int) Math.ceil((double) totalGiveAmount / maxStack);
 
                 int emptySlots = 0;
