@@ -2,7 +2,6 @@ package com.cappy.shards.managers;
 
 import com.cappy.shards.CappyShards;
 import com.cappy.shards.utils.ChatUtils;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
 public class OfflineRewardManager {
@@ -14,7 +13,7 @@ public class OfflineRewardManager {
     }
 
     public void loadConfig() {
-        // Config reloaded with plugin
+        // Handled via RankManager
     }
 
     public void processOfflineReward(Player player, long lastQuit) {
@@ -30,44 +29,12 @@ public class OfflineRewardManager {
             return;
         }
 
-        ConfigurationSection ranks = plugin.getConfig().getConfigurationSection("ranks");
-        if (ranks == null) {
+        RankManager.RankData matchedRank = plugin.getRankManager().getMatchedOfflineRank(player);
+        if (matchedRank == null || matchedRank.amount() <= 0 || matchedRank.maxOfflineHours() <= 0) {
             return;
         }
 
-        String matchedRank = null;
-        double maxHours = 0.0;
-        long amount = 0;
-
-        for (String rankKey : ranks.getKeys(false)) {
-            ConfigurationSection sec = ranks.getConfigurationSection(rankKey);
-            if (sec == null) continue;
-
-            double rankMaxHours = sec.getDouble("max-offline-hours", 0.0);
-            if (rankMaxHours <= 0) {
-                continue; // Rank does not support offline accumulation
-            }
-
-            String offlinePerm = sec.getString("offline-permission");
-            String mainPerm = sec.getString("permission");
-
-            boolean hasSpecific = offlinePerm != null && !offlinePerm.isEmpty() && player.hasPermission(offlinePerm);
-            boolean hasBaseAndRank = player.hasPermission("cappy.offline.shard") &&
-                    mainPerm != null && !mainPerm.isEmpty() && player.hasPermission(mainPerm);
-
-            if (hasSpecific || hasBaseAndRank) {
-                matchedRank = rankKey;
-                maxHours = rankMaxHours;
-                amount = sec.getLong("amount", 10);
-                break;
-            }
-        }
-
-        if (matchedRank == null || amount <= 0 || maxHours <= 0) {
-            return;
-        }
-
-        long maxMillis = (long) (maxHours * 3600.0 * 1000.0);
+        long maxMillis = (long) (matchedRank.maxOfflineHours() * 3600.0 * 1000.0);
         long effectiveMillis = Math.min(offlineMillis, maxMillis);
 
         int intervalSeconds = plugin.getConfig().getInt("afk-settings.interval-seconds", 60);
@@ -75,7 +42,7 @@ public class OfflineRewardManager {
 
         long effectiveSeconds = effectiveMillis / 1000L;
         long cycles = effectiveSeconds / intervalSeconds;
-        long earned = cycles * amount;
+        long earned = cycles * matchedRank.amount();
 
         if (earned > 0) {
             plugin.getPlayerDataManager().addShards(player.getUniqueId(), earned);
@@ -95,30 +62,6 @@ public class OfflineRewardManager {
     }
 
     public double getMaxOfflineHours(Player player) {
-        ConfigurationSection ranks = plugin.getConfig().getConfigurationSection("ranks");
-        if (ranks == null) return 0.0;
-
-        for (String rankKey : ranks.getKeys(false)) {
-            ConfigurationSection sec = ranks.getConfigurationSection(rankKey);
-            if (sec == null) continue;
-
-            double rankMaxHours = sec.getDouble("max-offline-hours", 0.0);
-            if (rankMaxHours <= 0) {
-                continue;
-            }
-
-            String offlinePerm = sec.getString("offline-permission");
-            String mainPerm = sec.getString("permission");
-
-            boolean hasSpecific = offlinePerm != null && !offlinePerm.isEmpty() && player.hasPermission(offlinePerm);
-            boolean hasBaseAndRank = player.hasPermission("cappy.offline.shard") &&
-                    mainPerm != null && !mainPerm.isEmpty() && player.hasPermission(mainPerm);
-
-            if (hasSpecific || hasBaseAndRank) {
-                return rankMaxHours;
-            }
-        }
-        return 0.0;
+        return plugin.getRankManager().getMaxOfflineHours(player);
     }
 }
-

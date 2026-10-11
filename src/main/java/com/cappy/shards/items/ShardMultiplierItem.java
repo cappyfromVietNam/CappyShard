@@ -6,6 +6,7 @@ import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
@@ -50,27 +51,31 @@ public class ShardMultiplierItem {
         return bottle;
     }
 
+    public record MultiplierData(double multiplier, int durationMinutes) {}
+
+    public static MultiplierData getMultiplierData(ItemStack item) {
+        if (item == null || item.getType() != Material.POTION || !item.hasItemMeta()) return null;
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) return null;
+        PersistentDataContainer pdc = meta.getPersistentDataContainer();
+        Double mult = pdc.get(MULTIPLIER_KEY, PersistentDataType.DOUBLE);
+        if (mult == null) return null;
+        Integer dur = pdc.get(DURATION_KEY, PersistentDataType.INTEGER);
+        return new MultiplierData(mult, dur != null ? dur : 30);
+    }
+
     public static boolean isMultiplierBottle(ItemStack item) {
-        if (item == null || item.getType() != Material.POTION) return false;
-        PotionMeta meta = (PotionMeta) item.getItemMeta();
-        if (meta == null) return false;
-        return meta.getPersistentDataContainer().has(MULTIPLIER_KEY, PersistentDataType.DOUBLE);
+        return getMultiplierData(item) != null;
     }
 
     public static double getMultiplier(ItemStack item) {
-        if (!isMultiplierBottle(item)) return 1.0;
-        PotionMeta meta = (PotionMeta) item.getItemMeta();
-        if (meta == null) return 1.0;
-        Double val = meta.getPersistentDataContainer().get(MULTIPLIER_KEY, PersistentDataType.DOUBLE);
-        return val != null ? val : 1.0;
+        MultiplierData data = getMultiplierData(item);
+        return data != null ? data.multiplier() : 1.0;
     }
 
     public static int getDurationMinutes(ItemStack item) {
-        if (!isMultiplierBottle(item)) return 30;
-        PotionMeta meta = (PotionMeta) item.getItemMeta();
-        if (meta == null) return 30;
-        Integer val = meta.getPersistentDataContainer().get(DURATION_KEY, PersistentDataType.INTEGER);
-        return val != null ? val : 30;
+        MultiplierData data = getMultiplierData(item);
+        return data != null ? data.durationMinutes() : 30;
     }
 }
 

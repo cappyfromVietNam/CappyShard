@@ -38,6 +38,30 @@ public class PlayerDataManager {
         }
     }
 
+    public void saveDataSync(UUID uuid) {
+        Long shards = shardCache.get(uuid);
+        if (shards != null) {
+            long now = System.currentTimeMillis();
+            plugin.getDatabaseManager().savePlayerDataSync(uuid, shards, now);
+            shardCache.remove(uuid);
+            lastQuitCache.remove(uuid);
+            operationLocks.remove(uuid);
+        }
+    }
+
+    public void saveAllSync() {
+        long now = System.currentTimeMillis();
+        for (UUID uuid : shardCache.keySet()) {
+            Long shards = shardCache.get(uuid);
+            if (shards != null) {
+                plugin.getDatabaseManager().savePlayerDataSync(uuid, shards, now);
+            }
+        }
+        shardCache.clear();
+        lastQuitCache.clear();
+        operationLocks.clear();
+    }
+
     public void updateLastQuit(UUID uuid, long timestamp) {
         lastQuitCache.put(uuid, timestamp);
         Long shards = shardCache.get(uuid);

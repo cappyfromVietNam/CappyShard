@@ -6,34 +6,57 @@ import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.command.CommandSender;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 public final class ChatUtils {
 
     private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
     private static final LegacyComponentSerializer LEGACY_AMPERSAND = LegacyComponentSerializer.legacyAmpersand();
     private static final LegacyComponentSerializer LEGACY_SECTION = LegacyComponentSerializer.legacySection();
 
+    // High performance LRU cache for parsed components (up to 1,000 entries)
+    private static final int MAX_CACHE_SIZE = 1000;
+    private static final Map<String, Component> PARSE_CACHE = Collections.synchronizedMap(
+            new LinkedHashMap<String, Component>(256, 0.75f, true) {
+                @Override
+                protected boolean removeEldestEntry(Map.Entry<String, Component> eldest) {
+                    return size() > MAX_CACHE_SIZE;
+                }
+            }
+    );
+
     private ChatUtils() {}
 
     /**
      * Safely parses a string with MiniMessage tags or legacy color codes into an Adventure Component.
-     * Guaranteed never to throw an exception!
+     * Caches results in memory to avoid repetitive CPU deserialization.
      */
     public static Component parse(String text) {
         if (text == null || text.isEmpty()) {
             return Component.empty();
         }
 
-        // If the string contains section signs (§), convert legacy section to Component
+        Component cached = PARSE_CACHE.get(text);
+        if (cached != null) {
+            return cached;
+        }
+
+        Component result = computeParse(text);
+        PARSE_CACHE.put(text, result);
+        return result;
+    }
+
+    private static Component computeParse(String text) {
         if (text.contains("§")) {
             return LEGACY_SECTION.deserialize(text);
         }
 
-        // If string contains legacy & but no MiniMessage tags
         if (text.contains("&") && !text.contains("<") && !text.contains(">")) {
             return LEGACY_AMPERSAND.deserialize(text);
         }
 
-        // If string contains both & and MiniMessage tags, convert & codes to MiniMessage tags
         String processed = text;
         if (processed.contains("&")) {
             processed = processed.replace("&0", "<black>")
@@ -62,7 +85,6 @@ public final class ChatUtils {
         try {
             return MINI_MESSAGE.deserialize(processed);
         } catch (Exception e) {
-            // Fallback safely to legacy ampersand, then plain text
             try {
                 return LEGACY_AMPERSAND.deserialize(text);
             } catch (Exception ignored) {
@@ -92,5 +114,9 @@ public final class ChatUtils {
         if (sender != null && message != null && !message.isEmpty()) {
             sender.sendMessage(parse(message));
         }
+    }
+
+    public static void clearCache() {
+        PARSE_CACHE.clear();
     }
 }

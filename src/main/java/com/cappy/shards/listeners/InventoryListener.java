@@ -60,9 +60,6 @@ public class InventoryListener implements Listener {
         event.setCancelled(true);
         event.setResult(Event.Result.DENY);
 
-        // Synchronize player inventory to eradicate ghost cursor items
-        player.updateInventory();
-
         // 2. Ignore clicks outside the window or in the player's bottom inventory
         if (event.getClickedInventory() == null || !event.getClickedInventory().equals(topInv)) {
             return;

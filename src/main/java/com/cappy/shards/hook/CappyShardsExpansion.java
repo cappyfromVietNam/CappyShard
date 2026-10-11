@@ -46,11 +46,9 @@ public class CappyShardsExpansion extends PlaceholderExpansion {
             return "";
         }
 
-        long balance = plugin.getPlayerDataManager().getShards(player.getUniqueId());
-
         return switch (params.toLowerCase()) {
-            case "balance", "shards" -> String.valueOf(balance);
-            case "balance_formatted", "shards_formatted" -> NumberFormat.getInstance(Locale.US).format(balance);
+            case "balance", "shards" -> String.valueOf(plugin.getPlayerDataManager().getShards(player.getUniqueId()));
+            case "balance_formatted", "shards_formatted" -> String.format(Locale.US, "%,d", plugin.getPlayerDataManager().getShards(player.getUniqueId()));
             case "afk_time", "afk_remaining" -> {
                 if (player.isOnline()) {
                     long remaining = plugin.getAfkRewardManager().getRemainingSeconds(player.getUniqueId());

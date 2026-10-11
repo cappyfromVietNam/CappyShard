@@ -20,6 +20,10 @@ import java.util.*;
 
 public class ShopGUI {
 
+    private static final ItemStack FILLER_GLASS = createItem(Material.GRAY_STAINED_GLASS_PANE, " ", null);
+    private static final ItemStack BACK_BUTTON = createItem(Material.ARROW, "<red>\u00AB Back to Catalogues</red>",
+            List.of("<gray>Click to return to the catalogue menu.</gray>"));
+
     private final CappyShards plugin;
 
     // Catalogue cache
@@ -123,16 +127,14 @@ public class ShopGUI {
         Inventory inv = Bukkit.createInventory(holder, catalogueSize, ChatUtils.parse(catalogueTitle));
         holder.setInventory(inv);
 
-        // Decorate background with glass
-        ItemStack filler = createItem(Material.GRAY_STAINED_GLASS_PANE, " ", null);
+        // Decorate background with pre-cached glass
         for (int i = 0; i < catalogueSize; i++) {
-            inv.setItem(i, filler);
+            inv.setItem(i, FILLER_GLASS);
         }
 
-        // Place categories
+        // Place categories with pre-cached icons
         for (CatalogueCategory cat : catalogueCategories.values()) {
-            ItemStack item = createItem(cat.material, cat.name, cat.lore);
-            inv.setItem(cat.slot, item);
+            inv.setItem(cat.slot, cat.icon);
         }
 
         player.openInventory(inv);
@@ -152,17 +154,14 @@ public class ShopGUI {
         Inventory inv = Bukkit.createInventory(holder, catData.size, ChatUtils.parse(catData.title));
         holder.setInventory(inv);
 
-        // Place items
+        // Place items with pre-cached display items
         for (ShopItem item : catData.items.values()) {
-            ItemStack stack = createItem(item.material, item.name, item.lore);
-            inv.setItem(item.slot, stack);
+            inv.setItem(item.slot, item.displayItem);
         }
 
-        // Place Back button at bottom right (size - 1)
+        // Place pre-cached Back button at bottom right (size - 1)
         int backSlot = catData.size - 1;
-        ItemStack backButton = createItem(Material.ARROW, "<red>\u00AB Back to Catalogues</red>",
-                List.of("<gray>Click to return to the catalogue menu.</gray>"));
-        inv.setItem(backSlot, backButton);
+        inv.setItem(backSlot, BACK_BUTTON);
 
         player.openInventory(inv);
     }
@@ -209,11 +208,9 @@ public class ShopGUI {
         long totalCost = stackMode ? (long) quantity * itemMaxStack * shopItem.getPrice() : (long) quantity * shopItem.getPrice();
         long playerBalance = plugin.getPlayerDataManager().getShards(player.getUniqueId());
 
-        ItemStack grayGlass = createItem(Material.GRAY_STAINED_GLASS_PANE, " ", null);
-
-        // Fill all 45 slots with gray glass by default
+        // Fill all 45 slots with pre-cached gray glass by default
         for (int i = 0; i < 45; i++) {
-            inv.setItem(i, grayGlass);
+            inv.setItem(i, FILLER_GLASS);
         }
 
         // --- Slot 13: Paper (Confirm Button) ---
@@ -270,9 +267,9 @@ public class ShopGUI {
                 inv.setItem(19, createGlassButton(Material.RED_STAINED_GLASS_PANE, 32, "<red><bold>-32</bold></red>", "<gray>Decrease by 32</gray>"));
             }
         } else {
-            inv.setItem(19, grayGlass);
-            inv.setItem(20, grayGlass);
-            inv.setItem(21, grayGlass);
+            inv.setItem(19, FILLER_GLASS);
+            inv.setItem(20, FILLER_GLASS);
+            inv.setItem(21, FILLER_GLASS);
         }
 
         // --- Increase Buttons: Slots 23, 24, 25 ---
@@ -288,9 +285,9 @@ public class ShopGUI {
                 inv.setItem(25, createGlassButton(Material.LIGHT_BLUE_STAINED_GLASS_PANE, 32, "<aqua><bold>+32</bold></aqua>", "<gray>Increase by 32</gray>"));
             }
         } else {
-            inv.setItem(23, grayGlass);
-            inv.setItem(24, grayGlass);
-            inv.setItem(25, grayGlass);
+            inv.setItem(23, FILLER_GLASS);
+            inv.setItem(24, FILLER_GLASS);
+            inv.setItem(25, FILLER_GLASS);
         }
 
         // --- Slot 31: Chest / Hopper (Toggle between Stack Mode & Unit Mode) ---
@@ -306,7 +303,7 @@ public class ShopGUI {
                 inv.setItem(31, switchStack);
             }
         } else {
-            inv.setItem(31, grayGlass);
+            inv.setItem(31, FILLER_GLASS);
         }
 
         // --- Slot 36: Player Head (Profile / Balance) ---
@@ -353,7 +350,7 @@ public class ShopGUI {
         return categories.get(categoryId);
     }
 
-    private ItemStack createItem(Material mat, String name, List<String> lore) {
+    public static ItemStack createItem(Material mat, String name, List<String> lore) {
         ItemStack item = new ItemStack(mat != null ? mat : Material.STONE);
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
@@ -419,6 +416,7 @@ public class ShopGUI {
         public final Material material;
         public final String name;
         public final List<String> lore;
+        public final ItemStack icon;
 
         public CatalogueCategory(String id, int slot, Material material, String name, List<String> lore) {
             this.id = id;
@@ -426,6 +424,7 @@ public class ShopGUI {
             this.material = material;
             this.name = name;
             this.lore = lore;
+            this.icon = createItem(material, name, lore);
         }
     }
 
@@ -454,6 +453,7 @@ public class ShopGUI {
         public final int giveAmount;
         public final String giveName;
         public final List<String> commands;
+        public final ItemStack displayItem;
 
         public ShopItem(String id, int slot, Material material, String name, List<String> lore,
                         long price, Material giveMaterial, int giveAmount, String giveName, List<String> commands) {
@@ -467,6 +467,7 @@ public class ShopGUI {
             this.giveAmount = giveAmount;
             this.giveName = giveName;
             this.commands = commands != null ? commands : Collections.emptyList();
+            this.displayItem = createItem(material, name, lore);
         }
 
         public long getPrice() { return price; }

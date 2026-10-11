@@ -7,6 +7,7 @@ import com.cappy.shards.gui.ShopGUI;
 import com.cappy.shards.listeners.InventoryListener;
 import com.cappy.shards.listeners.PlayerConnectionListener;
 import com.cappy.shards.managers.AfkRewardManager;
+import com.cappy.shards.utils.ChatUtils;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -25,6 +26,7 @@ public final class CappyShards extends JavaPlugin {
     private ShopGUI shopGUI;
     private com.cappy.shards.managers.ItemManager itemManager;
     private com.cappy.shards.managers.OfflineRewardManager offlineRewardManager;
+    private com.cappy.shards.managers.RankManager rankManager;
     private YamlConfiguration messages;
 
     @Override
@@ -46,6 +48,8 @@ public final class CappyShards extends JavaPlugin {
         playerDataManager = new PlayerDataManager(this);
 
         // Load configs & managers
+        rankManager = new com.cappy.shards.managers.RankManager(this);
+
         itemManager = new com.cappy.shards.managers.ItemManager(this);
         itemManager.loadConfig();
 
@@ -89,15 +93,14 @@ public final class CappyShards extends JavaPlugin {
         }
         
         if (playerDataManager != null && databaseManager != null) {
-            for (Player p : getServer().getOnlinePlayers()) {
-                playerDataManager.saveData(p.getUniqueId());
-            }
+            playerDataManager.saveAllSync();
         }
         
         if (databaseManager != null) {
             databaseManager.close();
         }
 
+        ChatUtils.clearCache();
         logger.info("CappyShards has been disabled.");
         instance = null;
     }
@@ -145,5 +148,9 @@ public final class CappyShards extends JavaPlugin {
 
     public com.cappy.shards.managers.OfflineRewardManager getOfflineRewardManager() {
         return offlineRewardManager;
+    }
+
+    public com.cappy.shards.managers.RankManager getRankManager() {
+        return rankManager;
     }
 }

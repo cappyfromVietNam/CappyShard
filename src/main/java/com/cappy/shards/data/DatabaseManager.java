@@ -28,11 +28,14 @@ public class DatabaseManager {
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl("jdbc:sqlite:" + dbFile.getAbsolutePath());
         config.setPoolName("CappyShards-SQLite-Pool");
-        config.setMaximumPoolSize(10);
-        config.setConnectionTimeout(30000);
-        
+        config.setMaximumPoolSize(3);
+        config.setMinimumIdle(1);
+        config.setConnectionTimeout(10000);
+        config.setIdleTimeout(60000);
+        config.setMaxLifetime(1800000);
+
         dataSource = new HikariDataSource(config);
-        
+
         createTables();
     }
 
@@ -44,6 +47,12 @@ public class DatabaseManager {
                 ");";
         try (Connection conn = dataSource.getConnection();
              Statement stmt = conn.createStatement()) {
+            // Enable high-performance SQLite PRAGMAs (WAL mode & memory cache)
+            stmt.execute("PRAGMA journal_mode = WAL;");
+            stmt.execute("PRAGMA synchronous = NORMAL;");
+            stmt.execute("PRAGMA temp_store = MEMORY;");
+            stmt.execute("PRAGMA cache_size = -10000;");
+
             stmt.execute(query);
             // Safely alter existing table to add last_quit if migrating from an older version
             try {
@@ -84,25 +93,27 @@ public class DatabaseManager {
     }
 
     public CompletableFuture<Void> savePlayerData(UUID uuid, long amount, long lastQuit) {
-        return CompletableFuture.runAsync(() -> {
-            String query = "INSERT INTO player_shards (uuid, shards, last_quit) VALUES (?, ?, ?) " +
-                    "ON CONFLICT(uuid) DO UPDATE SET shards = ?, last_quit = ?;";
-            try (Connection conn = dataSource.getConnection();
-                 PreparedStatement stmt = conn.prepareStatement(query)) {
-                stmt.setString(1, uuid.toString());
-                stmt.setLong(2, amount);
-                stmt.setLong(3, lastQuit);
-                stmt.setLong(4, amount);
-                stmt.setLong(5, lastQuit);
-                stmt.executeUpdate();
-            } catch (SQLException e) {
-                plugin.getLogger().severe("Error in savePlayerData: " + e.getMessage());
-            }
-        });
+        return CompletableFuture.runAsync(() -> savePlayerDataSync(uuid, amount, lastQuit));
+    }
+
+    public void savePlayerDataSync(UUID uuid, long amount, long lastQuit) {
+        if (dataSource == null || dataSource.isClosed()) return;
+        String query = "INSERT INTO player_shards (uuid, shards, last_quit) VALUES (?, ?, ?) " +
+                "ON CONFLICT(uuid) DO UPDATE SET shards = ?, last_quit = ?;";
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, uuid.toString());
+            stmt.setLong(2, amount);
+            stmt.setLong(3, lastQuit);
+            stmt.setLong(4, amount);
+            stmt.setLong(5, lastQuit);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            plugin.getLogger().severe("Error in savePlayerDataSync: " + e.getMessage());
+        }
     }
 
     public CompletableFuture<Void> saveShards(UUID uuid, long amount) {
         return savePlayerData(uuid, amount, System.currentTimeMillis());
     }
 }
-

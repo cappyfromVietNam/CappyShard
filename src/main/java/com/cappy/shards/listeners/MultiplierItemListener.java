@@ -30,7 +30,9 @@ public class MultiplierItemListener implements Listener {
         Player player = event.getPlayer();
         ItemStack item = event.getItem();
 
-        if (item == null || !ShardMultiplierItem.isMultiplierBottle(item)) return;
+        if (item == null) return;
+        ShardMultiplierItem.MultiplierData data = ShardMultiplierItem.getMultiplierData(item);
+        if (data == null) return;
 
         // Cancel event to prevent vanilla block interaction and potion drinking animation
         event.setCancelled(true);
@@ -43,8 +45,8 @@ public class MultiplierItemListener implements Listener {
             }
         }
 
-        double multiplier = ShardMultiplierItem.getMultiplier(item);
-        int duration = ShardMultiplierItem.getDurationMinutes(item);
+        double multiplier = data.multiplier();
+        int duration = data.durationMinutes();
 
         // Instantly deduct 1 bottle from the stack
         item.subtract(1);

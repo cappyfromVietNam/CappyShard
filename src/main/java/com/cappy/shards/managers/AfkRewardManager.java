@@ -3,12 +3,11 @@ package com.cappy.shards.managers;
 import com.cappy.shards.CappyShards;
 import com.cappy.shards.utils.ChatUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.List;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -20,9 +19,10 @@ public class AfkRewardManager {
     private final ConcurrentHashMap<UUID, String> activeRewardMessage = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<UUID, Double> activeMultipliers = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<UUID, Long> multiplierExpiry = new ConcurrentHashMap<>();
+
     private BukkitTask task;
     private int defaultInterval;
-    private List<String> enabledWorlds;
+    private Set<String> enabledWorldsSet = new HashSet<>();
     private String actionbarMsg;
     private String rewardMsg;
 
@@ -33,7 +33,7 @@ public class AfkRewardManager {
 
     public void loadConfig() {
         defaultInterval = plugin.getConfig().getInt("afk-settings.interval-seconds", 60);
-        enabledWorlds = plugin.getConfig().getStringList("afk-settings.enabled-worlds");
+        enabledWorldsSet = new HashSet<>(plugin.getConfig().getStringList("afk-settings.enabled-worlds"));
         actionbarMsg = plugin.getConfig().getString("afk-settings.actionbar-message", "<yellow>Receiving Shards in: <white>%time%s</white></yellow>");
         rewardMsg = plugin.getConfig().getString("afk-settings.actionbar-reward-message", "<green>You received %amount% Shards for being AFK!</green>");
     }
@@ -49,7 +49,7 @@ public class AfkRewardManager {
                 UUID uuid = player.getUniqueId();
 
                 boolean bypass = player.hasPermission("cappyshards.bypass.zone");
-                boolean inWorld = enabledWorlds.contains(player.getWorld().getName());
+                boolean inWorld = enabledWorldsSet.contains(player.getWorld().getName());
 
                 if (!bypass && !inWorld) {
                     nextRewardTimes.remove(uuid);
@@ -89,18 +89,7 @@ public class AfkRewardManager {
     }
 
     private void rewardPlayer(Player player) {
-        ConfigurationSection ranks = plugin.getConfig().getConfigurationSection("ranks");
-        long rewardAmount = 0;
-
-        if (ranks != null) {
-            for (String key : ranks.getKeys(false)) {
-                String perm = ranks.getString(key + ".permission");
-                if (perm != null && player.hasPermission(perm)) {
-                    rewardAmount = ranks.getLong(key + ".amount", 0);
-                    break;
-                }
-            }
-        }
+        long rewardAmount = plugin.getRankManager().getRewardAmount(player);
 
         if (rewardAmount > 0) {
             double multiplier = getActiveMultiplier(player.getUniqueId());
@@ -132,7 +121,7 @@ public class AfkRewardManager {
 
     public void addPlayer(Player player) {
         boolean bypass = player.hasPermission("cappyshards.bypass.zone");
-        boolean inWorld = enabledWorlds.contains(player.getWorld().getName());
+        boolean inWorld = enabledWorldsSet.contains(player.getWorld().getName());
 
         if (bypass || inWorld) {
             nextRewardTimes.putIfAbsent(player.getUniqueId(), System.currentTimeMillis() + (long) defaultInterval * 1000L);
@@ -153,16 +142,7 @@ public class AfkRewardManager {
     }
 
     public long getRewardAmount(Player player) {
-        ConfigurationSection ranks = plugin.getConfig().getConfigurationSection("ranks");
-        if (ranks != null) {
-            for (String key : ranks.getKeys(false)) {
-                String perm = ranks.getString(key + ".permission");
-                if (perm != null && player.hasPermission(perm)) {
-                    return ranks.getLong(key + ".amount", 0);
-                }
-            }
-        }
-        return 0;
+        return plugin.getRankManager().getRewardAmount(player);
     }
 
     public void activateMultiplier(UUID uuid, double multiplier, int durationMinutes) {
@@ -188,4 +168,3 @@ public class AfkRewardManager {
         return diff > 0 ? (diff + 999L) / 1000L : 0;
     }
 }
-
