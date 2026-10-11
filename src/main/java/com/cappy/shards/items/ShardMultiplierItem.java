@@ -23,6 +23,9 @@ public class ShardMultiplierItem {
     public static final NamespacedKey DURATION_KEY = new NamespacedKey(CappyShards.getInstance(), "multiplier_duration");
 
     public static ItemStack create(double multiplier, int durationMinutes) {
+        if (CappyShards.getInstance() != null && CappyShards.getInstance().getItemManager() != null) {
+            return CappyShards.getInstance().getItemManager().createMultiplierItem(multiplier, durationMinutes);
+        }
         ItemStack bottle = new ItemStack(Material.POTION);
         PotionMeta meta = (PotionMeta) bottle.getItemMeta();
         if (meta != null) {

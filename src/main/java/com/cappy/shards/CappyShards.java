@@ -23,6 +23,7 @@ public final class CappyShards extends JavaPlugin {
     private PlayerDataManager playerDataManager;
     private AfkRewardManager afkRewardManager;
     private ShopGUI shopGUI;
+    private com.cappy.shards.managers.ItemManager itemManager;
     private YamlConfiguration messages;
 
     @Override
@@ -32,6 +33,7 @@ public final class CappyShards extends JavaPlugin {
 
         saveDefaultConfig();
         saveResource("messages.yml", false);
+        saveResource("item.yml", false);
         saveResource("Shop/catalogue.yml", false);
         saveResource("Shop/shop.yml", false);
 
@@ -43,6 +45,9 @@ public final class CappyShards extends JavaPlugin {
         playerDataManager = new PlayerDataManager(this);
 
         // Load configs
+        itemManager = new com.cappy.shards.managers.ItemManager(this);
+        itemManager.loadConfig();
+
         shopGUI = new ShopGUI(this);
         shopGUI.loadShop();
 
@@ -129,5 +134,9 @@ public final class CappyShards extends JavaPlugin {
 
     public ShopGUI getShopGUI() {
         return shopGUI;
+    }
+
+    public com.cappy.shards.managers.ItemManager getItemManager() {
+        return itemManager;
     }
 }

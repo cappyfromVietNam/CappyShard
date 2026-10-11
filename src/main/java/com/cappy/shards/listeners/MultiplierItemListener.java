@@ -50,8 +50,16 @@ public class MultiplierItemListener implements Listener {
         item.subtract(1);
 
         // Instant audio & visual feedback
-        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.6f);
-        player.spawnParticle(Particle.HAPPY_VILLAGER, player.getLocation().add(0, 1.2, 0), 16, 0.3, 0.4, 0.3, 0.05);
+        Sound sound = plugin.getItemManager() != null ? plugin.getItemManager().getMultiplierSound() : Sound.ENTITY_PLAYER_LEVELUP;
+        if (sound != null) {
+            player.playSound(player.getLocation(), sound, 1.0f, 1.6f);
+        }
+
+        Particle particle = plugin.getItemManager() != null ? plugin.getItemManager().getMultiplierParticle() : Particle.HAPPY_VILLAGER;
+        int pCount = plugin.getItemManager() != null ? plugin.getItemManager().getMultiplierParticleCount() : 16;
+        if (particle != null && pCount > 0) {
+            player.spawnParticle(particle, player.getLocation().add(0, 1.2, 0), pCount, 0.3, 0.4, 0.3, 0.05);
+        }
 
         // Activate multiplier in manager
         plugin.getAfkRewardManager().activateMultiplier(player.getUniqueId(), multiplier, duration);

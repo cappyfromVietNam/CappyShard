@@ -1,0 +1,22 @@
+# ===================================================
+#             CappyShards Custom Items Config
+# ===================================================
+
+items:
+  shard_multiplier:
+    material: POTION
+    potion-type: WATER
+    custom-model-data: 0
+    name: "<gradient:#FFAA00:#FF5500><bold>Shard Multiplier</bold></gradient>"
+    lore:
+      - "<dark_gray>------------------------</dark_gray>"
+      - "<gray>Boost: <gold>x%multiplier%</gold></gray>"
+      - "<gray>Duration: <gold>%duration%m</gold></gray>"
+      - ""
+      - "<yellow>» Right-Click to instantly activate!</yellow>"
+      - "<dark_gray>------------------------</dark_gray>"
+    # Sound effect played on instant activation (e.g. ENTITY_PLAYER_LEVELUP, or NONE to disable)
+    sound: "ENTITY_PLAYER_LEVELUP"
+    # Particle effect spawned on instant activation (e.g. HAPPY_VILLAGER, or NONE to disable)
+    particle: "HAPPY_VILLAGER"
+    particle-count: 16
