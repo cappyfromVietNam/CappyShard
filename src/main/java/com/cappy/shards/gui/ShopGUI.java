@@ -89,10 +89,9 @@ public class ShopGUI {
                                     int giveAmt = itemSec.getInt("give-amount", 1);
                                     String giveName = itemSec.getString("give-name", "");
                                     List<String> commands = itemSec.getStringList("commands");
-                                    ItemStack itemStack = itemSec.getItemStack("item-stack");
 
                                     ShopItem item = new ShopItem(itemKey, slot, mat != null ? mat : Material.STONE,
-                                            name, lore, price, giveMat != null ? giveMat : (mat != null ? mat : Material.STONE), giveAmt, giveName, commands, itemStack);
+                                            name, lore, price, giveMat != null ? giveMat : (mat != null ? mat : Material.STONE), giveAmt, giveName, commands);
                                     items.put(slot, item);
                                 }
                             }
@@ -147,21 +146,7 @@ public class ShopGUI {
 
         // Place items
         for (ShopItem item : catData.items.values()) {
-            ItemStack stack;
-            if (item.getOriginalStack() != null) {
-                stack = item.getOriginalStack().clone();
-                ItemMeta meta = stack.getItemMeta();
-                List<Component> curLore = (meta != null && meta.hasLore() && meta.lore() != null) ? new ArrayList<>(meta.lore()) : new ArrayList<>();
-                curLore.add(Component.empty());
-                curLore.add(ChatUtils.parse("<gray>Đơn giá: <gold>" + item.getPrice() + " Shards</gold></gray>").decoration(TextDecoration.ITALIC, false));
-                curLore.add(ChatUtils.parse("<yellow>\u00BB Click để chọn số lượng & mua!</yellow>").decoration(TextDecoration.ITALIC, false));
-                if (meta != null) {
-                    meta.lore(curLore);
-                    stack.setItemMeta(meta);
-                }
-            } else {
-                stack = createItem(item.material, item.name, item.lore);
-            }
+            ItemStack stack = createItem(item.material, item.name, item.lore);
             inv.setItem(item.slot, stack);
         }
 
@@ -260,22 +245,7 @@ public class ShopGUI {
         } else {
             displayLore.add("<red>Số dư của bạn: <gold>" + playerBalance + " Shards</gold> (Thiếu!)</red>");
         }
-        ItemStack centerItem;
-        if (shopItem.getOriginalStack() != null) {
-            centerItem = shopItem.getOriginalStack().clone();
-            ItemMeta cMeta = centerItem.getItemMeta();
-            List<Component> curLore = (cMeta != null && cMeta.hasLore() && cMeta.lore() != null) ? new ArrayList<>(cMeta.lore()) : new ArrayList<>();
-            curLore.add(Component.empty());
-            for (String l : displayLore) {
-                curLore.add(ChatUtils.parse(l).decoration(TextDecoration.ITALIC, false));
-            }
-            if (cMeta != null) {
-                cMeta.lore(curLore);
-                centerItem.setItemMeta(cMeta);
-            }
-        } else {
-            centerItem = createItem(shopItem.material, shopItem.name.isEmpty() ? null : shopItem.name, displayLore);
-        }
+        ItemStack centerItem = createItem(shopItem.material, shopItem.name.isEmpty() ? null : shopItem.name, displayLore);
         centerItem.setAmount(Math.max(1, Math.min(quantity, 64)));
         inv.setItem(22, centerItem);
 
@@ -373,157 +343,6 @@ public class ShopGUI {
 
     public CategoryData getCategoryData(String categoryId) {
         return categories.get(categoryId);
-    }
-
-    public Map<String, CategoryData> getCategories() {
-        return categories;
-    }
-
-    public Map<Integer, CatalogueCategory> getCatalogueCategories() {
-        return catalogueCategories;
-    }
-
-    public boolean createCatalogue(String id, int slot, Material material, String displayName) {
-        File catFile = new File(plugin.getDataFolder(), "Shop/catalogue.yml");
-        YamlConfiguration catConfig = YamlConfiguration.loadConfiguration(catFile);
-
-        catConfig.set("categories." + id + ".slot", slot);
-        catConfig.set("categories." + id + ".material", material != null ? material.name() : "CHEST");
-        catConfig.set("categories." + id + ".name", displayName);
-        catConfig.set("categories." + id + ".lore", List.of(
-                "<gray>Xem các vật phẩm trong danh mục này.</gray>",
-                "",
-                "<yellow>\u00BB Click để mở danh mục!</yellow>"
-        ));
-
-        try {
-            catConfig.save(catFile);
-        } catch (Exception e) {
-            plugin.getLogger().severe("Failed to save catalogue.yml: " + e.getMessage());
-            return false;
-        }
-
-        File shopFile = new File(plugin.getDataFolder(), "Shop/shop.yml");
-        YamlConfiguration shopConfig = YamlConfiguration.loadConfiguration(shopFile);
-        if (!shopConfig.contains("categories." + id)) {
-            shopConfig.set("categories." + id + ".title", "<dark_gray>Shop \u00BB <white>" + displayName + "</white>");
-            shopConfig.set("categories." + id + ".size", 27);
-            try {
-                shopConfig.save(shopFile);
-            } catch (Exception e) {
-                plugin.getLogger().severe("Failed to save shop.yml: " + e.getMessage());
-            }
-        }
-
-        loadShop();
-        return true;
-    }
-
-    public int addShopItem(String categoryId, int slot, long price, ItemStack itemInHand) {
-        File shopFile = new File(plugin.getDataFolder(), "Shop/shop.yml");
-        YamlConfiguration shopConfig = YamlConfiguration.loadConfiguration(shopFile);
-
-        if (!shopConfig.contains("categories." + categoryId)) {
-            return -1; // Category does not exist
-        }
-
-        int catSize = shopConfig.getInt("categories." + categoryId + ".size", 27);
-        int maxSlot = catSize - 2; // Last slot is reserved for back button
-
-        Set<Integer> occupiedSlots = new HashSet<>();
-        ConfigurationSection itemsSec = shopConfig.getConfigurationSection("categories." + categoryId + ".items");
-        if (itemsSec != null) {
-            for (String key : itemsSec.getKeys(false)) {
-                occupiedSlots.add(itemsSec.getInt(key + ".slot"));
-            }
-        }
-
-        if (slot < 0) {
-            for (int s = 0; s <= maxSlot; s++) {
-                if (!occupiedSlots.contains(s)) {
-                    slot = s;
-                    break;
-                }
-            }
-            if (slot < 0) {
-                return -2; // Full
-            }
-        } else if (slot > maxSlot) {
-            return -3; // Out of bounds
-        }
-
-        String itemKey = itemInHand.getType().name().toLowerCase() + "_" + slot;
-        ItemStack saveStack = itemInHand.clone();
-        saveStack.setAmount(1);
-
-        String path = "categories." + categoryId + ".items." + itemKey;
-        shopConfig.set(path + ".slot", slot);
-        shopConfig.set(path + ".price", price);
-        shopConfig.set(path + ".material", saveStack.getType().name());
-        shopConfig.set(path + ".item-stack", saveStack);
-
-        try {
-            shopConfig.save(shopFile);
-        } catch (Exception e) {
-            plugin.getLogger().severe("Failed to save shop.yml: " + e.getMessage());
-            return -4;
-        }
-
-        loadShop();
-        return slot;
-    }
-
-    public boolean removeShopItem(String categoryId, int slot) {
-        File shopFile = new File(plugin.getDataFolder(), "Shop/shop.yml");
-        YamlConfiguration shopConfig = YamlConfiguration.loadConfiguration(shopFile);
-
-        ConfigurationSection itemsSec = shopConfig.getConfigurationSection("categories." + categoryId + ".items");
-        if (itemsSec == null) return false;
-
-        String foundKey = null;
-        for (String key : itemsSec.getKeys(false)) {
-            if (itemsSec.getInt(key + ".slot") == slot) {
-                foundKey = key;
-                break;
-            }
-        }
-
-        if (foundKey == null) return false;
-
-        shopConfig.set("categories." + categoryId + ".items." + foundKey, null);
-        try {
-            shopConfig.save(shopFile);
-        } catch (Exception e) {
-            plugin.getLogger().severe("Failed to save shop.yml: " + e.getMessage());
-            return false;
-        }
-
-        loadShop();
-        return true;
-    }
-
-    public boolean removeCatalogue(String categoryId) {
-        File catFile = new File(plugin.getDataFolder(), "Shop/catalogue.yml");
-        YamlConfiguration catConfig = YamlConfiguration.loadConfiguration(catFile);
-        catConfig.set("categories." + categoryId, null);
-        try {
-            catConfig.save(catFile);
-        } catch (Exception e) {
-            plugin.getLogger().severe("Failed to save catalogue.yml: " + e.getMessage());
-            return false;
-        }
-
-        File shopFile = new File(plugin.getDataFolder(), "Shop/shop.yml");
-        YamlConfiguration shopConfig = YamlConfiguration.loadConfiguration(shopFile);
-        shopConfig.set("categories." + categoryId, null);
-        try {
-            shopConfig.save(shopFile);
-        } catch (Exception e) {
-            plugin.getLogger().severe("Failed to save shop.yml: " + e.getMessage());
-        }
-
-        loadShop();
-        return true;
     }
 
     private ItemStack createItem(Material mat, String name, List<String> lore) {
@@ -627,14 +446,12 @@ public class ShopGUI {
         public final int giveAmount;
         public final String giveName;
         public final List<String> commands;
-        public final ItemStack originalStack;
 
         public ShopItem(String id, int slot, Material material, String name, List<String> lore,
-                        long price, Material giveMaterial, int giveAmount, String giveName, List<String> commands,
-                        ItemStack originalStack) {
+                        long price, Material giveMaterial, int giveAmount, String giveName, List<String> commands) {
             this.id = id;
             this.slot = slot;
-            this.material = originalStack != null ? originalStack.getType() : material;
+            this.material = material;
             this.name = name;
             this.lore = lore;
             this.price = price;
@@ -642,19 +459,12 @@ public class ShopGUI {
             this.giveAmount = giveAmount;
             this.giveName = giveName;
             this.commands = commands != null ? commands : Collections.emptyList();
-            this.originalStack = originalStack;
         }
 
         public long getPrice() { return price; }
-        public Material getMaterial() { return originalStack != null ? originalStack.getType() : (giveMaterial != null ? giveMaterial : material); }
-        public int getAmount() { return originalStack != null ? originalStack.getAmount() : giveAmount; }
-        public String getName() {
-            if (originalStack != null && originalStack.hasItemMeta() && originalStack.getItemMeta().hasDisplayName()) {
-                return originalStack.getItemMeta().getDisplayName();
-            }
-            return (giveName != null && !giveName.isEmpty()) ? giveName : name;
-        }
+        public Material getMaterial() { return giveMaterial != null ? giveMaterial : material; }
+        public int getAmount() { return giveAmount; }
+        public String getName() { return (giveName != null && !giveName.isEmpty()) ? giveName : name; }
         public List<String> getCommands() { return commands; }
-        public ItemStack getOriginalStack() { return originalStack; }
     }
 }
