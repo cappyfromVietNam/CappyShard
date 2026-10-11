@@ -13,10 +13,11 @@ items:
       - "<gray>Boost: <gold>x%multiplier%</gold></gray>"
       - "<gray>Duration: <gold>%duration%m</gold></gray>"
       - ""
-      - "<yellow>» Right-Click to instantly activate!</yellow>"
+      - "<yellow>» Right-Click to activate!</yellow>"
       - "<dark_gray>------------------------</dark_gray>"
     # Sound effect played on instant activation (e.g. ENTITY_PLAYER_LEVELUP, or NONE to disable)
     sound: "ENTITY_PLAYER_LEVELUP"
     # Particle effect spawned on instant activation (e.g. HAPPY_VILLAGER, or NONE to disable)
     particle: "HAPPY_VILLAGER"
     particle-count: 16
+

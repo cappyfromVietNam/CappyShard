@@ -1,10 +1,9 @@
 package com.cappy.shards.managers;
 
-import com.cappy.shards.CappyShards;
-import com.cappy.shards.items.ShardMultiplierItem;
-import com.cappy.shards.utils.ChatUtils;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.TextDecoration;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -17,9 +16,12 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionType;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import com.cappy.shards.CappyShards;
+import com.cappy.shards.items.ShardMultiplierItem;
+import com.cappy.shards.utils.ChatUtils;
+
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextDecoration;
 
 public class ItemManager {
 
@@ -151,3 +153,4 @@ public class ItemManager {
         return itemConfig;
     }
 }
+
