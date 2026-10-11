@@ -17,6 +17,10 @@
 
 [**Features**](#-features) • [**Quick Start**](#-quick-start) • [**In-Game Shop**](#-5-smart-in-game-shop) • [**Shard Multiplier**](#-shard-multiplier-boosters) • [**Placeholders**](#-placeholderapi-integration) • [**Commands & Permissions**](#-commands--permissions) • [**Configuration**](#-configuration-files)
 
+<br>
+
+🌐 **Languages:** [English](README.md) • [Tiếng Việt](README_VI.md)
+
 </div>
 
 <br>
