@@ -9,7 +9,7 @@ softdepend: [PlaceholderAPI]
 commands:
   cappyshard:
     description: Main command for CappyShards
-    aliases: [shard, shards, cshard]
+    aliases: [shard, shards, cshard, cappy]
     permission: cappyshards.use
   shardshop:
     description: Open the shard shop

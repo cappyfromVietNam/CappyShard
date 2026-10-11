@@ -52,6 +52,7 @@ public final class CappyShards extends JavaPlugin {
         // Listeners
         getServer().getPluginManager().registerEvents(new PlayerConnectionListener(this), this);
         getServer().getPluginManager().registerEvents(new InventoryListener(this), this);
+        getServer().getPluginManager().registerEvents(new com.cappy.shards.listeners.MultiplierItemListener(this), this);
 
         // Commands
         ShardCommand command = new ShardCommand(this);

@@ -1,14 +1,16 @@
 package com.cappy.shards.hook;
 
-import com.cappy.shards.CappyShards;
-import me.clip.placeholderapi.expansion.PlaceholderExpansion;
+import java.text.NumberFormat;
+import java.util.Locale;
+
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.text.NumberFormat;
-import java.util.Locale;
+import com.cappy.shards.CappyShards;
+
+import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 
 public class CappyShardsExpansion extends PlaceholderExpansion {
 
@@ -62,7 +64,15 @@ public class CappyShardsExpansion extends PlaceholderExpansion {
                 }
                 yield "0";
             }
+            case "multiplier" -> {
+                double mult = plugin.getAfkRewardManager().getActiveMultiplier(player.getUniqueId());
+                yield mult % 1 == 0 ? String.valueOf((long) mult) : String.valueOf(mult);
+            }
+            case "multiplier_remaining", "multiplier_time" -> {
+                yield String.valueOf(plugin.getAfkRewardManager().getMultiplierRemainingSeconds(player.getUniqueId()));
+            }
             default -> null;
         };
     }
 }
+

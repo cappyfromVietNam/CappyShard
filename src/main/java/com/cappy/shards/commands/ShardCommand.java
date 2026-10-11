@@ -95,8 +95,78 @@ public class ShardCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
+        if (subCommand.equals("give")) {
+            if (!sender.hasPermission("cappyshards.admin")) {
+                ChatUtils.sendMessage(sender, getMessage("no-permission", "<red>You do not have permission to use this command!</red>"));
+                return true;
+            }
+
+            // Syntax: /cappy give [player] <shard_multiplier> <multiplier> [duration_minutes]
+            Player target;
+            String itemType;
+            String multArg;
+            String durationArg = "30";
+
+            if (args.length >= 3 && (args[1].toLowerCase().contains("multi") || args[1].equalsIgnoreCase("shard_multiplier") || args[1].equalsIgnoreCase("shard_mutiplayer"))) {
+                if (!(sender instanceof Player p)) {
+                    ChatUtils.sendMessage(sender, "<red>Please specify a target player when executing from console: /cappy give <player> shard_multiplier <multiplier> [minutes]</red>");
+                    return true;
+                }
+                target = p;
+                itemType = args[1];
+                multArg = args[2];
+                if (args.length >= 4) {
+                    durationArg = args[3];
+                }
+            } else if (args.length >= 4) {
+                target = Bukkit.getPlayer(args[1]);
+                if (target == null) {
+                    ChatUtils.sendMessage(sender, getMessage("player-not-found", "<red>Player not found (or they have never joined)!</red>"));
+                    return true;
+                }
+                itemType = args[2];
+                multArg = args[3];
+                if (args.length >= 5) {
+                    durationArg = args[4];
+                }
+            } else {
+                ChatUtils.sendMessage(sender, "<red>Usage: /cappy give [player] shard_multiplier <multiplier> [duration_minutes]</red>");
+                return true;
+            }
+
+            if (!itemType.toLowerCase().contains("multi")) {
+                ChatUtils.sendMessage(sender, "<red>Unknown item type! Available: shard_multiplier</red>");
+                return true;
+            }
+
+            double multiplier;
+            try {
+                multiplier = Double.parseDouble(multArg);
+                if (multiplier <= 0) throw new NumberFormatException();
+            } catch (NumberFormatException e) {
+                ChatUtils.sendMessage(sender, getMessage("invalid-amount", "<red>Invalid multiplier!</red>"));
+                return true;
+            }
+
+            int durationMinutes = 30;
+            try {
+                durationMinutes = Integer.parseInt(durationArg);
+                if (durationMinutes <= 0) durationMinutes = 30;
+            } catch (NumberFormatException ignored) {}
+
+            org.bukkit.inventory.ItemStack bottle = com.cappy.shards.items.ShardMultiplierItem.create(multiplier, durationMinutes);
+            target.getInventory().addItem(bottle);
+
+            String formattedMult = (multiplier % 1 == 0 ? String.valueOf((long) multiplier) : String.valueOf(multiplier));
+            ChatUtils.sendMessage(sender, "<green>Given <white>1x Shard Multiplier (x" + formattedMult + ", " + durationMinutes + "m)</white> to <gold>" + target.getName() + "</gold>.</green>");
+            if (!sender.equals(target)) {
+                ChatUtils.sendMessage(target, "<green>You received <white>1x Shard Multiplier (x" + formattedMult + ", " + durationMinutes + "m)</white>!</green>");
+            }
+            return true;
+        }
+
         if (args.length < 3) {
-            ChatUtils.sendMessage(sender, "<red>Usage: /cappyshard [set|add|remove|pay] [player] [amount]</red>");
+            ChatUtils.sendMessage(sender, "<red>Usage: /cappyshard [set|add|remove|pay|give] [player] [amount]</red>");
             return true;
         }
 
@@ -200,12 +270,34 @@ public class ShardCommand implements CommandExecutor, TabCompleter {
                 completions.add("add");
                 completions.add("remove");
                 completions.add("reload");
+                completions.add("give");
             }
             if (sender.hasPermission("cappyshards.use.pay")) {
                 completions.add("pay");
             }
             if (sender.hasPermission("cappyshards.use.shop")) {
                 completions.add("shop");
+            }
+        } else if (args[0].equalsIgnoreCase("give") && sender.hasPermission("cappyshards.admin")) {
+            if (args.length == 2) {
+                completions.add("shard_multiplier");
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    completions.add(p.getName());
+                }
+            } else if (args.length == 3) {
+                if (args[1].toLowerCase().contains("multi")) {
+                    completions.addAll(List.of("1.5", "2.0", "3.0"));
+                } else {
+                    completions.add("shard_multiplier");
+                }
+            } else if (args.length == 4) {
+                if (args[1].toLowerCase().contains("multi")) {
+                    completions.addAll(List.of("15", "30", "60", "120"));
+                } else {
+                    completions.addAll(List.of("1.5", "2.0", "3.0"));
+                }
+            } else if (args.length == 5) {
+                completions.addAll(List.of("15", "30", "60", "120"));
             }
         } else if (args.length == 2 && !args[0].equalsIgnoreCase("reload") && !args[0].equalsIgnoreCase("shop")) {
             for (Player p : Bukkit.getOnlinePlayers()) {

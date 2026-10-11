@@ -18,6 +18,8 @@ public class AfkRewardManager {
     private final ConcurrentHashMap<UUID, Long> nextRewardTimes = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<UUID, Long> rewardDisplayUntil = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<UUID, String> activeRewardMessage = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<UUID, Double> activeMultipliers = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<UUID, Long> multiplierExpiry = new ConcurrentHashMap<>();
     private BukkitTask task;
     private int defaultInterval;
     private List<String> enabledWorlds;
@@ -74,7 +76,12 @@ public class AfkRewardManager {
                     } else {
                         // Priority countdown action bar refresh
                         long remainingSec = Math.max(1, (nextTime - now + 999L) / 1000L);
-                        player.sendActionBar(ChatUtils.parse(actionbarMsg.replace("%time%", String.valueOf(remainingSec))));
+                        double mult = getActiveMultiplier(uuid);
+                        String actionText = actionbarMsg.replace("%time%", String.valueOf(remainingSec));
+                        if (mult > 1.0) {
+                            actionText += " <gold>(x" + (mult % 1 == 0 ? (int) mult : mult) + ")</gold>";
+                        }
+                        player.sendActionBar(ChatUtils.parse(actionText));
                     }
                 }
             }
@@ -96,8 +103,15 @@ public class AfkRewardManager {
         }
 
         if (rewardAmount > 0) {
-            plugin.getPlayerDataManager().addShards(player.getUniqueId(), rewardAmount);
-            String formattedReward = rewardMsg.replace("%amount%", String.valueOf(rewardAmount));
+            double multiplier = getActiveMultiplier(player.getUniqueId());
+            long finalReward = Math.max(1, Math.round(rewardAmount * multiplier));
+            plugin.getPlayerDataManager().addShards(player.getUniqueId(), finalReward);
+
+            String formattedReward = rewardMsg.replace("%amount%", String.valueOf(finalReward));
+            if (multiplier > 1.0) {
+                formattedReward += " <gold>(x" + (multiplier % 1 == 0 ? (int) multiplier : multiplier) + " Boosted)</gold>";
+            }
+
             activeRewardMessage.put(player.getUniqueId(), formattedReward);
             rewardDisplayUntil.put(player.getUniqueId(), System.currentTimeMillis() + 3000L);
             player.sendActionBar(ChatUtils.parse(formattedReward));
@@ -112,6 +126,8 @@ public class AfkRewardManager {
         nextRewardTimes.clear();
         rewardDisplayUntil.clear();
         activeRewardMessage.clear();
+        activeMultipliers.clear();
+        multiplierExpiry.clear();
     }
 
     public void addPlayer(Player player) {
@@ -147,6 +163,29 @@ public class AfkRewardManager {
             }
         }
         return 0;
+    }
+
+    public void activateMultiplier(UUID uuid, double multiplier, int durationMinutes) {
+        long durationMillis = (long) durationMinutes * 60 * 1000L;
+        activeMultipliers.put(uuid, multiplier);
+        multiplierExpiry.put(uuid, System.currentTimeMillis() + durationMillis);
+    }
+
+    public double getActiveMultiplier(UUID uuid) {
+        Long expiry = multiplierExpiry.get(uuid);
+        if (expiry == null || System.currentTimeMillis() >= expiry) {
+            activeMultipliers.remove(uuid);
+            multiplierExpiry.remove(uuid);
+            return 1.0;
+        }
+        return activeMultipliers.getOrDefault(uuid, 1.0);
+    }
+
+    public long getMultiplierRemainingSeconds(UUID uuid) {
+        Long expiry = multiplierExpiry.get(uuid);
+        if (expiry == null) return 0;
+        long diff = expiry - System.currentTimeMillis();
+        return diff > 0 ? (diff + 999L) / 1000L : 0;
     }
 }
 
