@@ -3,6 +3,7 @@ package com.cappy.shards.gui;
 import com.cappy.shards.CappyShards;
 import com.cappy.shards.utils.ChatUtils;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
@@ -147,9 +148,9 @@ public class ShopGUI {
             inv.setItem(item.slot, stack);
         }
 
-        // Place Back button at bottom right (size - 1) or bottom middle (size - 5)
+        // Place Back button at bottom right (size - 1)
         int backSlot = catData.size - 1;
-        ItemStack backButton = createItem(Material.ARROW, "<red>« Back to Catalogues</red>",
+        ItemStack backButton = createItem(Material.ARROW, "<red>\u00AB Back to Catalogues</red>",
                 List.of("<gray>Click to return to the catalogue menu.</gray>"));
         inv.setItem(backSlot, backButton);
 
@@ -212,15 +213,15 @@ public class ShopGUI {
         inv.setItem(26, createItem(Material.GOLD_NUGGET, "<yellow>Max (64)</yellow>", List.of("<gray>Set quantity to 64</gray>")));
 
         // Cancel button
-        inv.setItem(21, createItem(Material.BARRIER, "<red><bold>✖ CANCEL</bold></red>",
+        inv.setItem(21, createItem(Material.BARRIER, "<red><bold>\u2716 CANCEL</bold></red>",
                 List.of("<gray>Return to items catalogue</gray>")));
 
         // Confirm button
         Material confirmMat = (playerBalance >= totalCost) ? Material.EMERALD_BLOCK : Material.REDSTONE_BLOCK;
-        String confirmName = (playerBalance >= totalCost) ? "<green><bold>✔ CONFIRM PURCHASE</bold></green>" : "<red><bold>✖ NOT ENOUGH SHARDS</bold></red>";
+        String confirmName = (playerBalance >= totalCost) ? "<green><bold>\u2714 CONFIRM PURCHASE</bold></green>" : "<red><bold>\u2716 NOT ENOUGH SHARDS</bold></red>";
         List<String> confirmLore = List.of(
                 "<gray>Total Cost: <gold>" + totalCost + " Shards</gold></gray>",
-                "<yellow>» Click to finalize transaction!</yellow>"
+                "<yellow>\u00BB Click to finalize transaction!</yellow>"
         );
         inv.setItem(23, createItem(confirmMat, confirmName, confirmLore));
     }
@@ -243,12 +244,12 @@ public class ShopGUI {
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
             if (name != null && !name.isEmpty()) {
-                meta.displayName(ChatUtils.parse(name));
+                meta.displayName(ChatUtils.parse(name).decoration(TextDecoration.ITALIC, false));
             }
             if (lore != null && !lore.isEmpty()) {
                 List<Component> compLore = new ArrayList<>();
                 for (String l : lore) {
-                    compLore.add(ChatUtils.parse(l));
+                    compLore.add(ChatUtils.parse(l).decoration(TextDecoration.ITALIC, false));
                 }
                 meta.lore(compLore);
             }

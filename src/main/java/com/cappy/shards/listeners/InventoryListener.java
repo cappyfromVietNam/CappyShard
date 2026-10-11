@@ -3,12 +3,16 @@ package com.cappy.shards.listeners;
 import com.cappy.shards.CappyShards;
 import com.cappy.shards.gui.ShopGUI;
 import com.cappy.shards.utils.ChatUtils;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -21,72 +25,88 @@ public class InventoryListener implements Listener {
         this.plugin = plugin;
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onInventoryDrag(InventoryDragEvent event) {
-        InventoryHolder holder = event.getInventory().getHolder();
+        Inventory topInv = event.getView().getTopInventory();
+        if (topInv == null) return;
+
+        InventoryHolder holder = topInv.getHolder();
         if (holder instanceof ShopGUI.CatalogueHolder ||
             holder instanceof ShopGUI.CategoryHolder ||
             holder instanceof ShopGUI.ConfirmHolder) {
             event.setCancelled(true);
+            event.setResult(Event.Result.DENY);
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onInventoryClick(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player player)) return;
 
-        InventoryHolder topHolder = event.getView().getTopInventory().getHolder();
+        Inventory topInv = event.getView().getTopInventory();
+        if (topInv == null) return;
+
+        InventoryHolder topHolder = topInv.getHolder();
         if (topHolder == null) return;
 
-        // Ensure this is one of our Shop GUIs
         boolean isShopGUI = topHolder instanceof ShopGUI.CatalogueHolder ||
                            topHolder instanceof ShopGUI.CategoryHolder ||
                            topHolder instanceof ShopGUI.ConfirmHolder;
 
         if (!isShopGUI) return;
 
-        // Cancel all clicks in shop window or player shift-clicks
+        // 1. Immediately cancel the click and deny result to prevent ANY item dragging or stealing
         event.setCancelled(true);
+        event.setResult(Event.Result.DENY);
 
-        // Only process clicks occurring in the upper (shop) inventory
-        if (event.getClickedInventory() == null || !event.getClickedInventory().equals(event.getView().getTopInventory())) {
+        // Synchronize player inventory to eradicate ghost cursor items
+        player.updateInventory();
+
+        // 2. Ignore clicks outside the window or in the player's bottom inventory
+        if (event.getClickedInventory() == null || !event.getClickedInventory().equals(topInv)) {
             return;
         }
 
         int slot = event.getSlot();
 
-        // 1. Handling Tier 1: Catalogue Menu
-        if (topHolder instanceof ShopGUI.CatalogueHolder) {
-            ShopGUI.CatalogueCategory category = plugin.getShopGUI().getCatalogueCategory(slot);
-            if (category != null) {
-                plugin.getShopGUI().openCategory(player, category.id);
-            }
-            return;
-        }
-
-        // 2. Handling Tier 2: Category Items Menu
-        if (topHolder instanceof ShopGUI.CategoryHolder catHolder) {
-            int backSlot = event.getClickedInventory().getSize() - 1;
-            if (slot == backSlot) {
-                // Return to catalogue
-                plugin.getShopGUI().openCatalogue(player);
+        try {
+            // Tier 1: Catalogue Menu
+            if (topHolder instanceof ShopGUI.CatalogueHolder) {
+                ShopGUI.CatalogueCategory category = plugin.getShopGUI().getCatalogueCategory(slot);
+                if (category != null) {
+                    plugin.getShopGUI().openCategory(player, category.id);
+                }
                 return;
             }
 
-            ShopGUI.ShopItem shopItem = plugin.getShopGUI().getShopItem(catHolder.getCategoryId(), slot);
-            if (shopItem != null) {
-                plugin.getShopGUI().openConfirm(player, catHolder.getCategoryId(), shopItem, 1);
-            }
-            return;
-        }
+            // Tier 2: Category Items Menu
+            if (topHolder instanceof ShopGUI.CategoryHolder catHolder) {
+                int backSlot = event.getClickedInventory().getSize() - 1;
+                if (slot == backSlot) {
+                    plugin.getShopGUI().openCatalogue(player);
+                    return;
+                }
 
-        // 3. Handling Tier 3: Quantity Adjustment & Confirmation Menu
-        if (topHolder instanceof ShopGUI.ConfirmHolder confirmHolder) {
-            handleConfirmClick(player, confirmHolder, slot, event.getClickedInventory());
+                ShopGUI.ShopItem shopItem = plugin.getShopGUI().getShopItem(catHolder.getCategoryId(), slot);
+                if (shopItem != null) {
+                    plugin.getShopGUI().openConfirm(player, catHolder.getCategoryId(), shopItem, 1);
+                }
+                return;
+            }
+
+            // Tier 3: Quantity Adjustment & Confirmation Menu
+            if (topHolder instanceof ShopGUI.ConfirmHolder confirmHolder) {
+                handleConfirmClick(player, confirmHolder, slot, event.getClickedInventory());
+            }
+
+        } catch (Exception e) {
+            plugin.getLogger().warning("Error handling shop click for " + player.getName() + ": " + e.getMessage());
+        } finally {
+            player.updateInventory();
         }
     }
 
-    private void handleConfirmClick(Player player, ShopGUI.ConfirmHolder holder, int slot, org.bukkit.inventory.Inventory inv) {
+    private void handleConfirmClick(Player player, ShopGUI.ConfirmHolder holder, int slot, Inventory inv) {
         int currentQty = holder.getQuantity();
 
         switch (slot) {
@@ -120,6 +140,9 @@ public class InventoryListener implements Listener {
             case 23 -> { // Confirm Purchase
                 executePurchase(player, holder);
             }
+            default -> {
+                // Clicking display item (slot 13) or glass panes does nothing, stays strictly cancelled
+            }
         }
     }
 
@@ -135,13 +158,13 @@ public class InventoryListener implements Listener {
                 int qty = holder.getQuantity();
                 long totalCost = item.getPrice() * qty;
 
-                // Balance check
+                // 1. Balance check
                 if (plugin.getPlayerDataManager().getShards(player.getUniqueId()) < totalCost) {
                     ChatUtils.sendMessage(player, plugin.getMessage("not-enough-shards", "<red>You do not have enough Shards to perform this transaction!</red>"));
                     return;
                 }
 
-                // Inventory space check
+                // 2. Inventory space check
                 int totalGiveAmount = qty * Math.max(1, item.getAmount());
                 Material mat = item.getMaterial();
                 int maxStack = mat.getMaxStackSize();
@@ -159,10 +182,10 @@ public class InventoryListener implements Listener {
                     return;
                 }
 
-                // Deduct shards
+                // 3. Deduct shards
                 plugin.getPlayerDataManager().removeShards(player.getUniqueId(), totalCost);
 
-                // Give items
+                // 4. Give items securely
                 int remaining = totalGiveAmount;
                 while (remaining > 0) {
                     int giveThis = Math.min(remaining, maxStack);
@@ -170,7 +193,7 @@ public class InventoryListener implements Listener {
                     if (item.getName() != null && !item.getName().isEmpty()) {
                         ItemMeta meta = reward.getItemMeta();
                         if (meta != null) {
-                            meta.displayName(ChatUtils.parse(item.getName()));
+                            meta.displayName(ChatUtils.parse(item.getName()).decoration(TextDecoration.ITALIC, false));
                             reward.setItemMeta(meta);
                         }
                     }
@@ -178,18 +201,23 @@ public class InventoryListener implements Listener {
                     remaining -= giveThis;
                 }
 
+                // 5. Send success message
                 String itemName = item.getName() != null && !item.getName().isEmpty() ? item.getName() : mat.name();
-                String successMsg = plugin.getMessage("shop-purchase-success", "<green>Successfully purchased <white>%amount%x %item%</white> for <gold>%price%</gold> Shards.</green>")
+                String rawTemplate = plugin.getMessage("shop-purchase-success", "<green>Successfully purchased <white>%amount%x %item%</white> for <gold>%price%</gold> Shards.</green>");
+                String formatted = rawTemplate
                         .replace("%amount%", String.valueOf(totalGiveAmount))
                         .replace("%item%", itemName)
                         .replace("%price%", String.valueOf(totalCost));
-                ChatUtils.sendMessage(player, successMsg);
+                ChatUtils.sendMessage(player, formatted);
 
-                // Re-open category menu so player can continue shopping
+                // 6. Return to category view
                 plugin.getShopGUI().openCategory(player, holder.getCategoryId());
 
+            } catch (Exception e) {
+                plugin.getLogger().severe("Error executing purchase for " + player.getName() + ": " + e.getMessage());
             } finally {
                 plugin.getPlayerDataManager().unlock(player.getUniqueId());
+                player.updateInventory();
             }
         }
     }

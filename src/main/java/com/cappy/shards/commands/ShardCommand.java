@@ -96,7 +96,7 @@ public class ShardCommand implements CommandExecutor, TabCompleter {
         }
 
         if (args.length < 3) {
-            ChatUtils.sendMessage(sender, "<red>Sử dụng: /cappyshard <set|add|remove|pay> <player> <amount></red>");
+            ChatUtils.sendMessage(sender, "<red>Usage: /cappyshard [set|add|remove|pay] [player] [amount]</red>");
             return true;
         }
 
