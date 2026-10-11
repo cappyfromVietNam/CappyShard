@@ -25,14 +25,28 @@ afk-settings:
   actionbar-message: "<yellow>Receiving Shards in: <white>%time%s</white></yellow>"
   actionbar-reward-message: "<green>You received %amount% Shards for being AFK!</green>"
 
-# Ranks are checked from top to bottom. The first one the player has permission for (cappyshards.rank.<name>) will be applied.
+# Offline Shard Settings
+# Allows players with permission to accumulate shards while offline
+# Permissions: cappy.offline.shard (base) or cappy.offline.shard.<rank>
+offline-settings:
+  enabled: true
+  # Fallback maximum offline accumulation hours if not specified on a rank
+  default-max-hours: 2.0
+
+# Ranks are checked from top to bottom. The first one the player has permission for will be applied.
 ranks:
   vip_plus:
     permission: "cappyshards.rank.vipplus"
+    offline-permission: "cappy.offline.shard.vipplus"
     amount: 50
+    max-offline-hours: 12.0
   vip:
     permission: "cappyshards.rank.vip"
+    offline-permission: "cappy.offline.shard.vip"
     amount: 30
+    max-offline-hours: 6.0
   default:
     permission: "cappyshards.rank.default"
+    offline-permission: "cappy.offline.shard.default"
     amount: 10
+    max-offline-hours: 2.0

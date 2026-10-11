@@ -39,11 +39,18 @@ public class DatabaseManager {
     private void createTables() {
         String query = "CREATE TABLE IF NOT EXISTS player_shards (" +
                 "uuid VARCHAR(36) PRIMARY KEY," +
-                "shards BIGINT NOT NULL DEFAULT 0" +
+                "shards BIGINT NOT NULL DEFAULT 0," +
+                "last_quit BIGINT NOT NULL DEFAULT 0" +
                 ");";
         try (Connection conn = dataSource.getConnection();
              Statement stmt = conn.createStatement()) {
             stmt.execute(query);
+            // Safely alter existing table to add last_quit if migrating from an older version
+            try {
+                stmt.execute("ALTER TABLE player_shards ADD COLUMN last_quit BIGINT NOT NULL DEFAULT 0;");
+            } catch (SQLException ignored) {
+                // Column already exists
+            }
         } catch (SQLException e) {
             plugin.getLogger().severe("Error creating database table: " + e.getMessage());
         }
@@ -55,37 +62,47 @@ public class DatabaseManager {
         }
     }
 
-    public CompletableFuture<Long> getShards(UUID uuid) {
+    public CompletableFuture<PlayerData> getPlayerData(UUID uuid) {
         return CompletableFuture.supplyAsync(() -> {
-            String query = "SELECT shards FROM player_shards WHERE uuid = ?;";
+            String query = "SELECT shards, last_quit FROM player_shards WHERE uuid = ?;";
             try (Connection conn = dataSource.getConnection();
                  PreparedStatement stmt = conn.prepareStatement(query)) {
                 stmt.setString(1, uuid.toString());
                 ResultSet rs = stmt.executeQuery();
                 if (rs.next()) {
-                    return rs.getLong("shards");
+                    return new PlayerData(rs.getLong("shards"), rs.getLong("last_quit"));
                 }
             } catch (SQLException e) {
-                plugin.getLogger().severe("Error in getShards: " + e.getMessage());
+                plugin.getLogger().severe("Error in getPlayerData: " + e.getMessage());
             }
-            return 0L;
+            return new PlayerData(0L, 0L);
         });
     }
 
-    public CompletableFuture<Void> saveShards(UUID uuid, long amount) {
+    public CompletableFuture<Long> getShards(UUID uuid) {
+        return getPlayerData(uuid).thenApply(PlayerData::getShards);
+    }
+
+    public CompletableFuture<Void> savePlayerData(UUID uuid, long amount, long lastQuit) {
         return CompletableFuture.runAsync(() -> {
-            String query = "INSERT INTO player_shards (uuid, shards) VALUES (?, ?) " +
-                    "ON CONFLICT(uuid) DO UPDATE SET shards = ?;";
+            String query = "INSERT INTO player_shards (uuid, shards, last_quit) VALUES (?, ?, ?) " +
+                    "ON CONFLICT(uuid) DO UPDATE SET shards = ?, last_quit = ?;";
             try (Connection conn = dataSource.getConnection();
                  PreparedStatement stmt = conn.prepareStatement(query)) {
                 stmt.setString(1, uuid.toString());
                 stmt.setLong(2, amount);
-                stmt.setLong(3, amount);
+                stmt.setLong(3, lastQuit);
+                stmt.setLong(4, amount);
+                stmt.setLong(5, lastQuit);
                 stmt.executeUpdate();
             } catch (SQLException e) {
-                plugin.getLogger().severe("Error in saveShards: " + e.getMessage());
+                plugin.getLogger().severe("Error in savePlayerData: " + e.getMessage());
             }
         });
+    }
+
+    public CompletableFuture<Void> saveShards(UUID uuid, long amount) {
+        return savePlayerData(uuid, amount, System.currentTimeMillis());
     }
 }
 

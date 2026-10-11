@@ -31,3 +31,15 @@ permissions:
   cappyshards.bypass.zone:
     description: Bypass AFK zone requirement
     default: op
+  cappy.offline.shard:
+    description: Base permission to accumulate shards while offline
+    default: false
+  cappy.offline.shard.vipplus:
+    description: Offline shard accumulation for VIP+ rank
+    default: false
+  cappy.offline.shard.vip:
+    description: Offline shard accumulation for VIP rank
+    default: false
+  cappy.offline.shard.default:
+    description: Offline shard accumulation for default rank
+    default: false

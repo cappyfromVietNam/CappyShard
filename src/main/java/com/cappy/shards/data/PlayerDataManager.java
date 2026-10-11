@@ -12,23 +12,37 @@ public class PlayerDataManager {
     private final ConcurrentHashMap<UUID, Long> shardCache = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<UUID, AtomicBoolean> operationLocks = new ConcurrentHashMap<>();
 
+    private final ConcurrentHashMap<UUID, Long> lastQuitCache = new ConcurrentHashMap<>();
+
     public PlayerDataManager(CappyShards plugin) {
         this.plugin = plugin;
     }
 
-    public void loadData(UUID uuid) {
-        plugin.getDatabaseManager().getShards(uuid).thenAccept(shards -> {
-            shardCache.put(uuid, shards);
+    public java.util.concurrent.CompletableFuture<PlayerData> loadData(UUID uuid) {
+        return plugin.getDatabaseManager().getPlayerData(uuid).thenApply(data -> {
+            shardCache.put(uuid, data.getShards());
+            lastQuitCache.put(uuid, data.getLastQuit());
             operationLocks.putIfAbsent(uuid, new AtomicBoolean(false));
+            return data;
         });
     }
 
     public void saveData(UUID uuid) {
         Long shards = shardCache.get(uuid);
         if (shards != null) {
-            plugin.getDatabaseManager().saveShards(uuid, shards);
+            long now = System.currentTimeMillis();
+            plugin.getDatabaseManager().savePlayerData(uuid, shards, now);
             shardCache.remove(uuid);
+            lastQuitCache.remove(uuid);
             operationLocks.remove(uuid);
+        }
+    }
+
+    public void updateLastQuit(UUID uuid, long timestamp) {
+        lastQuitCache.put(uuid, timestamp);
+        Long shards = shardCache.get(uuid);
+        if (shards != null) {
+            plugin.getDatabaseManager().savePlayerData(uuid, shards, timestamp);
         }
     }
 

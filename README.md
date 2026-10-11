@@ -65,6 +65,12 @@ An intuitive, player-friendly shopping experience without needing custom texture
 - **Virtual Rewards & Commands:** Supports optional console `commands` in `shop.yml` for giving Crate Keys, ranks, or custom plugin items.
 - **Inventory Safe:** Automatically checks available inventory space before transactions to avoid dropped items.
 
+### 💤 6. Offline Shard Accumulation
+- **Passive Offline Progress:** Players can accumulate Shards even while completely logged off!
+- **Rank-Based Duration Caps:** Configurable maximum accumulation time per rank in `config.yml` (e.g. 2h for Default, 6h for VIP, 12h for VIP+).
+- **Flexible Permission Control:** Grant globally using `cappy.offline.shard` or per-rank with `cappy.offline.shard.<rank>`.
+- **Welcome-Back Notification:** Reconnecting players receive a detailed chat notification showing their offline time and shards earned.
+
 ---
 
 ## ⚡ Shard Multiplier Boosters
@@ -105,6 +111,7 @@ CappyShards provides comprehensive **PlaceholderAPI (PAPI)** placeholders ready 
 | `%cappyshards_multiplier_time_formatted%` | Human-readable remaining booster time | `29m 59s` |
 | `%cappyshards_has_multiplier%` | Check if player has an active booster | `true` / `false` |
 | `%cappyshards_multiplier_tag%` | Formatted booster tag (empty if none active) | ` (x2)` |
+| `%cappyshards_offline_max_hours%` | Maximum offline shard accumulation hours for the player | `6` |
 
 ---
 
@@ -129,6 +136,8 @@ CappyShards provides comprehensive **PlaceholderAPI (PAPI)** placeholders ready 
 - `cappyshards.admin` *(Default: op)* — Administrative access (set, add, remove, give, reload).
 - `cappyshards.bypass.zone` *(Default: op)* — Receive AFK rewards regardless of the current world.
 - `cappyshards.rank.<name>` — Grants specific rank payout amounts configured in `config.yml`.
+- `cappy.offline.shard` — Base permission to accumulate shards while offline.
+- `cappy.offline.shard.<rank>` — Rank-specific offline accumulation permissions (`cappy.offline.shard.vipplus`, `cappy.offline.shard.vip`, `cappy.offline.shard.default`).
 
 ---
 

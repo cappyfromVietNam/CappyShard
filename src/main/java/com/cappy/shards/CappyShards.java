@@ -24,6 +24,7 @@ public final class CappyShards extends JavaPlugin {
     private AfkRewardManager afkRewardManager;
     private ShopGUI shopGUI;
     private com.cappy.shards.managers.ItemManager itemManager;
+    private com.cappy.shards.managers.OfflineRewardManager offlineRewardManager;
     private YamlConfiguration messages;
 
     @Override
@@ -44,9 +45,11 @@ public final class CappyShards extends JavaPlugin {
         databaseManager.init();
         playerDataManager = new PlayerDataManager(this);
 
-        // Load configs
+        // Load configs & managers
         itemManager = new com.cappy.shards.managers.ItemManager(this);
         itemManager.loadConfig();
+
+        offlineRewardManager = new com.cappy.shards.managers.OfflineRewardManager(this);
 
         shopGUI = new ShopGUI(this);
         shopGUI.loadShop();
@@ -138,5 +141,9 @@ public final class CappyShards extends JavaPlugin {
 
     public com.cappy.shards.managers.ItemManager getItemManager() {
         return itemManager;
+    }
+
+    public com.cappy.shards.managers.OfflineRewardManager getOfflineRewardManager() {
+        return offlineRewardManager;
     }
 }

@@ -94,6 +94,15 @@ public class CappyShardsExpansion extends PlaceholderExpansion {
                 double mult = plugin.getAfkRewardManager().getActiveMultiplier(player.getUniqueId());
                 yield mult > 1.0 ? " (x" + (mult % 1 == 0 ? (long) mult : mult) + ")" : "";
             }
+            case "offline_max_hours" -> {
+                Player online = player.getPlayer();
+                if (online != null) {
+                    double hours = plugin.getOfflineRewardManager().getMaxOfflineHours(online);
+                    yield hours % 1 == 0 ? String.valueOf((long) hours) : String.valueOf(hours);
+                }
+                double defHours = plugin.getConfig().getDouble("offline-settings.default-max-hours", 2.0);
+                yield defHours % 1 == 0 ? String.valueOf((long) defHours) : String.valueOf(defHours);
+            }
             default -> null;
         };
     }

@@ -103,7 +103,13 @@ public class PlayerConnectionListener implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        plugin.getPlayerDataManager().loadData(player.getUniqueId());
+        plugin.getPlayerDataManager().loadData(player.getUniqueId()).thenAccept(data -> {
+            org.bukkit.Bukkit.getScheduler().runTask(plugin, () -> {
+                if (player.isOnline()) {
+                    plugin.getOfflineRewardManager().processOfflineReward(player, data.getLastQuit());
+                }
+            });
+        });
         plugin.getAfkRewardManager().addPlayer(player);
     }
 
