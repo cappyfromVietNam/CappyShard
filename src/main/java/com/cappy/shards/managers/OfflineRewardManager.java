@@ -47,22 +47,27 @@ public class OfflineRewardManager {
             ConfigurationSection sec = ranks.getConfigurationSection(rankKey);
             if (sec == null) continue;
 
-            String offlinePerm = sec.getString("offline-permission", "cappy.offline.shard." + rankKey);
+            double rankMaxHours = sec.getDouble("max-offline-hours", 0.0);
+            if (rankMaxHours <= 0) {
+                continue; // Rank does not support offline accumulation
+            }
+
+            String offlinePerm = sec.getString("offline-permission");
             String mainPerm = sec.getString("permission");
 
-            boolean hasSpecific = offlinePerm != null && player.hasPermission(offlinePerm);
+            boolean hasSpecific = offlinePerm != null && !offlinePerm.isEmpty() && player.hasPermission(offlinePerm);
             boolean hasBaseAndRank = player.hasPermission("cappy.offline.shard") &&
-                    ((mainPerm != null && player.hasPermission(mainPerm)) || rankKey.equalsIgnoreCase("default"));
+                    mainPerm != null && !mainPerm.isEmpty() && player.hasPermission(mainPerm);
 
             if (hasSpecific || hasBaseAndRank) {
                 matchedRank = rankKey;
-                maxHours = sec.getDouble("max-offline-hours", defaultMaxHours);
+                maxHours = rankMaxHours;
                 amount = sec.getLong("amount", 10);
                 break;
             }
         }
 
-        if (matchedRank == null || amount <= 0) {
+        if (matchedRank == null || amount <= 0 || maxHours <= 0) {
             return;
         }
 
@@ -87,31 +92,37 @@ public class OfflineRewardManager {
             String rawMsg = plugin.getMessage("offline-reward",
                     "<green>While you were offline, you earned <gold>%amount%</gold> Shards (<white>%time%</white> offline)!</green>");
             String formattedMsg = rawMsg
-                    .replace("%amount%", String.valueOf(earned))
-                    .replace("%time%", timeFormatted);
+                .replace("%amount%", String.valueOf(earned))
+                .replace("%time%", timeFormatted);
             ChatUtils.sendMessage(player, formattedMsg);
         }
     }
 
     public double getMaxOfflineHours(Player player) {
         ConfigurationSection ranks = plugin.getConfig().getConfigurationSection("ranks");
-        if (ranks == null) return defaultMaxHours;
+        if (ranks == null) return 0.0;
 
         for (String rankKey : ranks.getKeys(false)) {
             ConfigurationSection sec = ranks.getConfigurationSection(rankKey);
             if (sec == null) continue;
 
-            String offlinePerm = sec.getString("offline-permission", "cappy.offline.shard." + rankKey);
+            double rankMaxHours = sec.getDouble("max-offline-hours", 0.0);
+            if (rankMaxHours <= 0) {
+                continue;
+            }
+
+            String offlinePerm = sec.getString("offline-permission");
             String mainPerm = sec.getString("permission");
 
-            boolean hasSpecific = offlinePerm != null && player.hasPermission(offlinePerm);
+            boolean hasSpecific = offlinePerm != null && !offlinePerm.isEmpty() && player.hasPermission(offlinePerm);
             boolean hasBaseAndRank = player.hasPermission("cappy.offline.shard") &&
-                    ((mainPerm != null && player.hasPermission(mainPerm)) || rankKey.equalsIgnoreCase("default"));
+                    mainPerm != null && !mainPerm.isEmpty() && player.hasPermission(mainPerm);
 
             if (hasSpecific || hasBaseAndRank) {
-                return sec.getDouble("max-offline-hours", defaultMaxHours);
+                return rankMaxHours;
             }
         }
-        return defaultMaxHours;
+        return 0.0;
     }
 }
+

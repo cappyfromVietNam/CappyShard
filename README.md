@@ -137,7 +137,7 @@ CappyShards provides comprehensive **PlaceholderAPI (PAPI)** placeholders ready 
 - `cappyshards.bypass.zone` *(Default: op)* — Receive AFK rewards regardless of the current world.
 - `cappyshards.rank.<name>` — Grants specific rank payout amounts configured in `config.yml`.
 - `cappy.offline.shard` — Base permission to accumulate shards while offline.
-- `cappy.offline.shard.<rank>` — Rank-specific offline accumulation permissions (`cappy.offline.shard.vipplus`, `cappy.offline.shard.vip`, `cappy.offline.shard.default`).
+- `cappy.offline.shard.<rank>` — Rank-specific offline accumulation permissions (`cappy.offline.shard.vipplus`, `cappy.offline.shard.vip`).
 
 ---
 

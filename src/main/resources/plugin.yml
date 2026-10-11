@@ -40,6 +40,3 @@ permissions:
   cappy.offline.shard.vip:
     description: Offline shard accumulation for VIP rank
     default: false
-  cappy.offline.shard.default:
-    description: Offline shard accumulation for default rank
-    default: false

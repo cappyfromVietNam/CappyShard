@@ -30,8 +30,8 @@ afk-settings:
 # Permissions: cappy.offline.shard (base) or cappy.offline.shard.<rank>
 offline-settings:
   enabled: true
-  # Fallback maximum offline accumulation hours if not specified on a rank
-  default-max-hours: 2.0
+  # Fallback maximum offline accumulation hours if not specified on a rank (0.0 = disabled)
+  default-max-hours: 0.0
 
 # Ranks are checked from top to bottom. The first one the player has permission for will be applied.
 ranks:
@@ -47,6 +47,5 @@ ranks:
     max-offline-hours: 6.0
   default:
     permission: "cappyshards.rank.default"
-    offline-permission: "cappy.offline.shard.default"
     amount: 10
-    max-offline-hours: 2.0
+    max-offline-hours: 0.0 # Default rank does not accumulate shards offline
