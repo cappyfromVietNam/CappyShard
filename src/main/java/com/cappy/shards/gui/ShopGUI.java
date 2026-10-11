@@ -162,7 +162,7 @@ public class ShopGUI {
      * Tier 3: Open 45-slot Quantity Adjustment & Confirmation GUI
      */
     public void openConfirm(Player player, String categoryId, ShopItem shopItem, int quantity) {
-        int maxQty = Math.min(shopItem.getMaterial().getMaxStackSize(), 64);
+        int maxQty = 64;
         quantity = Math.max(1, Math.min(quantity, maxQty));
 
         ConfirmHolder holder = new ConfirmHolder(categoryId, shopItem, quantity);
@@ -178,7 +178,7 @@ public class ShopGUI {
      */
     public void renderConfirmInventory(Inventory inv, Player player, ConfirmHolder holder) {
         ShopItem shopItem = holder.getShopItem();
-        int maxQty = Math.min(shopItem.getMaterial().getMaxStackSize(), 64);
+        int maxQty = 64;
         int quantity = Math.max(1, Math.min(holder.getQuantity(), maxQty));
         holder.setQuantity(quantity);
 

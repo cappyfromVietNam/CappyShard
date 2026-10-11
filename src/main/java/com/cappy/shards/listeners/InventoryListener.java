@@ -108,7 +108,7 @@ public class InventoryListener implements Listener {
 
     private void handleConfirmClick(Player player, ShopGUI.ConfirmHolder holder, int slot, Inventory inv) {
         int currentQty = holder.getQuantity();
-        int maxQty = Math.min(holder.getShopItem().getMaterial().getMaxStackSize(), 64);
+        int maxQty = 64;
 
         switch (slot) {
             case 13 -> { // PAPER: Confirm Purchase
