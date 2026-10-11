@@ -7,9 +7,11 @@ import com.cappy.shards.gui.ShopGUI;
 import com.cappy.shards.listeners.InventoryListener;
 import com.cappy.shards.listeners.PlayerConnectionListener;
 import com.cappy.shards.managers.AfkRewardManager;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
 import java.util.logging.Logger;
 
 public final class CappyShards extends JavaPlugin {
@@ -21,6 +23,7 @@ public final class CappyShards extends JavaPlugin {
     private PlayerDataManager playerDataManager;
     private AfkRewardManager afkRewardManager;
     private ShopGUI shopGUI;
+    private YamlConfiguration messages;
 
     @Override
     public void onEnable() {
@@ -31,6 +34,8 @@ public final class CappyShards extends JavaPlugin {
         saveResource("messages.yml", false);
         saveResource("Shop/catalogue.yml", false);
         saveResource("Shop/shop.yml", false);
+
+        loadMessages();
 
         // Init Data
         databaseManager = new DatabaseManager(this);
@@ -80,6 +85,23 @@ public final class CappyShards extends JavaPlugin {
 
         logger.info("CappyShards has been disabled.");
         instance = null;
+    }
+
+    public void loadMessages() {
+        File msgFile = new File(getDataFolder(), "messages.yml");
+        if (msgFile.exists()) {
+            messages = YamlConfiguration.loadConfiguration(msgFile);
+        }
+    }
+
+    public String getMessage(String key, String def) {
+        String prefix = messages != null ? messages.getString("prefix", "") : "";
+        String msg = messages != null ? messages.getString(key, def) : def;
+        return prefix + msg;
+    }
+
+    public String getRawMessage(String key, String def) {
+        return messages != null ? messages.getString(key, def) : def;
     }
 
     public static CappyShards getInstance() {

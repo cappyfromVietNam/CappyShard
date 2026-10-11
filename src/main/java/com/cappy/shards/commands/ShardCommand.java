@@ -72,6 +72,7 @@ public class ShardCommand implements CommandExecutor, TabCompleter {
                 return true;
             }
             plugin.reloadConfig();
+            plugin.loadMessages();
             loadMessages();
             plugin.getShopGUI().loadShop();
             plugin.getAfkRewardManager().loadConfig();

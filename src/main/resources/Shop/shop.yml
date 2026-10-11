@@ -1,28 +1,106 @@
-title: "Shard Shop"
-size: 27
+# ===================================================
+#             Shard Shop Items Config
+# ===================================================
+categories:
+  weapons:
+    title: "<dark_gray>Shop » <gradient:#FF5555:#FFAA00>Weapons & Tools</gradient>"
+    size: 27
+    items:
+      diamond_sword:
+        slot: 11
+        material: DIAMOND_SWORD
+        name: "<aqua>Divine Diamond Sword</aqua>"
+        lore:
+          - "<gray>Unit Price: <gold>100 Shards</gold></gray>"
+          - ""
+          - "<yellow>» Click to choose quantity & buy!</yellow>"
+        price: 100
+        give-material: DIAMOND_SWORD
+        give-name: "<aqua>Divine Diamond Sword</aqua>"
 
-items:
-  diamond_sword:
-    slot: 10
-    material: DIAMOND_SWORD
-    name: "<aqua>Divine Diamond Sword</aqua>"
-    lore:
-      - "<gray>Price: <gold>100 Shards</gold></gray>"
-      - ""
-      - "<yellow>Click to purchase!</yellow>"
-    price: 100
-    give-material: DIAMOND_SWORD
-    give-amount: 1
-    give-name: "<aqua>Divine Diamond Sword</aqua>"
+      netherite_axe:
+        slot: 13
+        material: NETHERITE_AXE
+        name: "<gold>Titan's Battleaxe</gold>"
+        lore:
+          - "<gray>Unit Price: <gold>250 Shards</gold></gray>"
+          - ""
+          - "<yellow>» Click to choose quantity & buy!</yellow>"
+        price: 250
+        give-material: NETHERITE_AXE
+        give-name: "<gold>Titan's Battleaxe</gold>"
 
-  golden_apple:
-    slot: 13
-    material: GOLDEN_APPLE
-    name: "<gold>Golden Apple</gold>"
-    lore:
-      - "<gray>Price: <gold>50 Shards</gold></gray>"
-      - ""
-      - "<yellow>Click to purchase!</yellow>"
-    price: 50
-    give-material: GOLDEN_APPLE
-    give-amount: 5
+      bow:
+        slot: 15
+        material: BOW
+        name: "<green>Ranger's Longbow</green>"
+        lore:
+          - "<gray>Unit Price: <gold>80 Shards</gold></gray>"
+          - ""
+          - "<yellow>» Click to choose quantity & buy!</yellow>"
+        price: 80
+        give-material: BOW
+        give-name: "<green>Ranger's Longbow</green>"
+
+  consumables:
+    title: "<dark_gray>Shop » <gradient:#55FF55:#55FFFF>Consumables</gradient>"
+    size: 27
+    items:
+      golden_apple:
+        slot: 12
+        material: GOLDEN_APPLE
+        name: "<gold>Golden Apple</gold>"
+        lore:
+          - "<gray>Unit Price: <gold>20 Shards</gold></gray>"
+          - ""
+          - "<yellow>» Click to choose quantity & buy!</yellow>"
+        price: 20
+        give-material: GOLDEN_APPLE
+
+      enchanted_golden_apple:
+        slot: 14
+        material: ENCHANTED_GOLDEN_APPLE
+        name: "<light_purple>Enchanted Golden Apple</light_purple>"
+        lore:
+          - "<gray>Unit Price: <gold>150 Shards</gold></gray>"
+          - ""
+          - "<yellow>» Click to choose quantity & buy!</yellow>"
+        price: 150
+        give-material: ENCHANTED_GOLDEN_APPLE
+
+  materials:
+    title: "<dark_gray>Shop » <gradient:#FFAA00:#FFFF55>Materials</gradient>"
+    size: 27
+    items:
+      diamond:
+        slot: 11
+        material: DIAMOND
+        name: "<aqua>Flawless Diamond</aqua>"
+        lore:
+          - "<gray>Unit Price: <gold>15 Shards</gold></gray>"
+          - ""
+          - "<yellow>» Click to choose quantity & buy!</yellow>"
+        price: 15
+        give-material: DIAMOND
+
+      netherite_ingot:
+        slot: 13
+        material: NETHERITE_INGOT
+        name: "<dark_purple>Refined Netherite Ingot</dark_purple>"
+        lore:
+          - "<gray>Unit Price: <gold>120 Shards</gold></gray>"
+          - ""
+          - "<yellow>» Click to choose quantity & buy!</yellow>"
+        price: 120
+        give-material: NETHERITE_INGOT
+
+      totem_of_undying:
+        slot: 15
+        material: TOTEM_OF_UNDYING
+        name: "<yellow>Totem of Undying</yellow>"
+        lore:
+          - "<gray>Unit Price: <gold>200 Shards</gold></gray>"
+          - ""
+          - "<yellow>» Click to choose quantity & buy!</yellow>"
+        price: 200
+        give-material: TOTEM_OF_UNDYING

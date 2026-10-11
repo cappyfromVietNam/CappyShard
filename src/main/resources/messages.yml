@@ -20,5 +20,5 @@ not-enough-shards: "<red>You do not have enough Shards to perform this transacti
 invalid-amount: "<red>Invalid amount!</red>"
 player-not-found: "<red>Player not found (or they have never joined)!</red>"
 inventory-full: "<red>Your inventory is full, cannot purchase this item!</red>"
-shop-purchase-success: "<green>Successfully purchased <white>%item%</white> for <gold>%price%</gold> Shards.</green>"
+shop-purchase-success: "<green>Successfully purchased <white>%amount%x %item%</white> for <gold>%price%</gold> Shards.</green>"
 action-locked: "<red>You are clicking too fast! Please try again.</red>"

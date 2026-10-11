@@ -1,3 +1,33 @@
-# Catalogue config
-title: "Shard Shop Catalogue"
+# ===================================================
+#             Shard Shop Catalogue Config
+# ===================================================
+title: "<gradient:#FFAA00:#FF5500>Shard Shop Catalogue</gradient>"
 size: 27
+
+categories:
+  weapons:
+    slot: 11
+    material: NETHERITE_SWORD
+    name: "<gradient:#FF5555:#FFAA00>Weapons & Tools</gradient>"
+    lore:
+      - "<gray>Browse powerful weapons & tools</gray>"
+      - ""
+      - "<yellow>» Click to view items!</yellow>"
+
+  consumables:
+    slot: 13
+    material: ENCHANTED_GOLDEN_APPLE
+    name: "<gradient:#55FF55:#55FFFF>Consumables & Food</gradient>"
+    lore:
+      - "<gray>Browse high-tier food & potions</gray>"
+      - ""
+      - "<yellow>» Click to view items!</yellow>"
+
+  materials:
+    slot: 15
+    material: NETHERITE_INGOT
+    name: "<gradient:#FFAA00:#FFFF55>Valuable Materials</gradient>"
+    lore:
+      - "<gray>Browse rare minerals and ores</gray>"
+      - ""
+      - "<yellow>» Click to view items!</yellow>"
