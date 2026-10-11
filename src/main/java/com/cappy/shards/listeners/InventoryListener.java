@@ -184,7 +184,9 @@ public class InventoryListener implements Listener {
                 boolean stackMode = holder.isStackMode();
                 int qty = holder.getQuantity();
                 Material mat = item.getMaterial();
-                int maxStack = Math.max(1, mat.getMaxStackSize());
+                int maxStack = item.getOriginalStack() != null
+                        ? Math.max(1, item.getOriginalStack().getMaxStackSize())
+                        : Math.max(1, mat.getMaxStackSize());
 
                 int totalGiveAmount = stackMode ? qty * maxStack : qty * Math.max(1, item.getAmount());
                 long totalCost = stackMode ? (long) qty * maxStack * item.getPrice() : (long) qty * item.getPrice();
@@ -222,6 +224,15 @@ public class InventoryListener implements Listener {
                                 .replace("%player%", player.getName())
                                 .replace("%amount%", String.valueOf(totalGiveAmount));
                         Bukkit.dispatchCommand(Bukkit.getConsoleSender(), formattedCmd);
+                    }
+                } else if (item.getOriginalStack() != null) {
+                    int remaining = totalGiveAmount;
+                    while (remaining > 0) {
+                        int giveThis = Math.min(remaining, maxStack);
+                        ItemStack reward = item.getOriginalStack().clone();
+                        reward.setAmount(giveThis);
+                        player.getInventory().addItem(reward);
+                        remaining -= giveThis;
                     }
                 } else {
                     int remaining = totalGiveAmount;
