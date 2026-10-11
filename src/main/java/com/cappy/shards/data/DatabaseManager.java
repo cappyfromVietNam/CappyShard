@@ -87,6 +87,11 @@ public class DatabaseManager {
 
     public void close() {
         if (dataSource != null && !dataSource.isClosed()) {
+            try (Connection conn = dataSource.getConnection();
+                 Statement stmt = conn.createStatement()) {
+                stmt.execute("PRAGMA wal_checkpoint(TRUNCATE);");
+            } catch (SQLException ignored) {
+            }
             dataSource.close();
         }
     }
