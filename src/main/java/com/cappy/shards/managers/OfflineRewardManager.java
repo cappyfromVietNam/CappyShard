@@ -8,21 +8,17 @@ import org.bukkit.entity.Player;
 public class OfflineRewardManager {
 
     private final CappyShards plugin;
-    private boolean enabled;
-    private double defaultMaxHours;
 
     public OfflineRewardManager(CappyShards plugin) {
         this.plugin = plugin;
-        loadConfig();
     }
 
     public void loadConfig() {
-        this.enabled = plugin.getConfig().getBoolean("offline-settings.enabled", true);
-        this.defaultMaxHours = plugin.getConfig().getDouble("offline-settings.default-max-hours", 2.0);
+        // Config reloaded with plugin
     }
 
     public void processOfflineReward(Player player, long lastQuit) {
-        if (!enabled || lastQuit <= 0) {
+        if (lastQuit <= 0) {
             return;
         }
 
@@ -40,7 +36,7 @@ public class OfflineRewardManager {
         }
 
         String matchedRank = null;
-        double maxHours = defaultMaxHours;
+        double maxHours = 0.0;
         long amount = 0;
 
         for (String rankKey : ranks.getKeys(false)) {
