@@ -128,5 +128,25 @@ public class AfkRewardManager {
         rewardDisplayUntil.remove(uuid);
         activeRewardMessage.remove(uuid);
     }
+
+    public long getRemainingSeconds(UUID uuid) {
+        Long nextTime = nextRewardTimes.get(uuid);
+        if (nextTime == null) return 0;
+        long now = System.currentTimeMillis();
+        return Math.max(0, (nextTime - now + 999L) / 1000L);
+    }
+
+    public long getRewardAmount(Player player) {
+        ConfigurationSection ranks = plugin.getConfig().getConfigurationSection("ranks");
+        if (ranks != null) {
+            for (String key : ranks.getKeys(false)) {
+                String perm = ranks.getString(key + ".permission");
+                if (perm != null && player.hasPermission(perm)) {
+                    return ranks.getLong(key + ".amount", 0);
+                }
+            }
+        }
+        return 0;
+    }
 }
 

@@ -64,6 +64,12 @@ public final class CappyShards extends JavaPlugin {
             playerDataManager.loadData(p.getUniqueId());
         }
 
+        // PlaceholderAPI Expansion
+        if (getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            new com.cappy.shards.hook.CappyShardsExpansion(this).register();
+            logger.info("Hooked into PlaceholderAPI successfully!");
+        }
+
         logger.info("CappyShards has been enabled successfully!");
     }
 
