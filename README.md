@@ -160,7 +160,7 @@ All configurations use modern **MiniMessage** gradient and hex formatting.
 
 ## 📥 Quick Start
 
-1. Download the latest `CappyShards-1.0.0.jar` from [Releases](https://github.com/quocdat251107-del/CappyShard/releases) or [Modrinth](https://modrinth.com/).
+1. Download the latest `CappyShards-1.0.0.jar` from [Releases](https://github.com/cappyfromVietNam/CappyShard/releases) or [Modrinth](https://modrinth.com/).
 2. Place the jar file into your server's `plugins/` folder.
 3. *(Optional)* Install [PlaceholderAPI](https://www.spigotmc.org/resources/placeholderapi.6245/) for scoreboard & tab integration.
 4. Start your server. Configuration files will generate automatically.
@@ -172,7 +172,7 @@ All configurations use modern **MiniMessage** gradient and hex formatting.
 ## 🛠️ Building from Source
 
 ```bash
-git clone https://github.com/quocdat251107-del/CappyShard.git
+git clone https://github.com/cappyfromVietNam/CappyShard.git
 cd CappyShard
 ./gradlew build
 ```

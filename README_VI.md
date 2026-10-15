@@ -160,7 +160,7 @@ Tất cả các tệp đều sử dụng định dạng màu sắc hiện đại
 
 ## 📥 Hướng dẫn Cài đặt Nhanh
 
-1. Tải về bản build mới nhất `CappyShards-1.0.0.jar` từ mục [Releases](https://github.com/quocdat251107-del/CappyShard/releases) hoặc [Modrinth](https://modrinth.com/).
+1. Tải về bản build mới nhất `CappyShards-1.0.0.jar` từ mục [Releases](https://github.com/cappyfromVietNam/CappyShard/releases) hoặc [Modrinth](https://modrinth.com/).
 2. Đặt file `.jar` vào thư mục `plugins/` của máy chủ.
 3. *(Tùy chọn)* Cài đặt thêm [PlaceholderAPI](https://www.spigotmc.org/resources/placeholderapi.6245/) để tích hợp bảng điểm Scoreboard & TAB.
 4. Khởi động máy chủ. Các tệp cấu hình mẫu sẽ được tự động tạo.
@@ -172,7 +172,7 @@ Tất cả các tệp đều sử dụng định dạng màu sắc hiện đại
 ## 🛠️ Build từ Mã Nguồn
 
 ```bash
-git clone https://github.com/quocdat251107-del/CappyShard.git
+git clone https://github.com/cappyfromVietNam/CappyShard.git
 cd CappyShard
 ./gradlew build
 ```
